@@ -14,7 +14,7 @@ const fakeManager = {
   id: 2,
   name: 'Demo Manager',
   email: 'manager@rehome.build',
-  role: 'manager' as const,
+  role: 'project_manager' as const,
   email_verified_at: new Date().toISOString(),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
@@ -24,7 +24,7 @@ const fakeEmployee = {
   id: 3,
   name: 'Demo Employee',
   email: 'employee@rehome.build',
-  role: 'employee' as const,
+  role: 'team_member' as const,
   email_verified_at: new Date().toISOString(),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
@@ -42,24 +42,24 @@ export const handlers = [
   }),
 
   // Login
-  http.post('/api/login', async ({ request }) => {
+  http.post('/api/auth/login', async ({ request }) => {
     try {
       const body = await request.json() as { email: string; password: string }
       
       // Demo credentials
-      let user = fakeEmployee
+      let user
       if (body.email === 'admin@rehome.build') {
         user = fakeUser
       } else if (body.email === 'manager@rehome.build') {
         user = fakeManager
-      } else if (body.email === 'employee@rehome.build') {
+      } else {
         user = fakeEmployee
       }
       
       if (body.email && body.password) {
         return HttpResponse.json({ 
-          token: 'demo-token-123', 
-          user 
+          data: user,
+          message: 'Login successful'
         }, { 
           status: 200,
           headers: {
@@ -82,7 +82,7 @@ export const handlers = [
   }),
 
   // Register
-  http.post('/api/register', async ({ request }) => {
+  http.post('/api/auth/register', async ({ request }) => {
     try {
       const body = await request.json() as {
         name: string
@@ -116,15 +116,15 @@ export const handlers = [
         id: 4,
         name: body.name,
         email: body.email,
-        role: 'employee' as const,
+        role: 'team_member' as const,
         email_verified_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
       
       return HttpResponse.json({ 
-        token: 'demo-token-456', 
-        user: newUser 
+        data: newUser,
+        message: 'Registration successful' 
       }, { 
         status: 201,
         headers: {
@@ -138,7 +138,7 @@ export const handlers = [
     }
   }),
 
-  // Get current user
+  // Get current user (Laravel standard)
   http.get('/api/user', ({ request }) => {
     const cookie = request.headers.get('cookie')
     if (cookie?.includes('laravel_session=mock-session')) {
@@ -147,17 +147,17 @@ export const handlers = [
     return HttpResponse.json({ message: 'Unauthenticated' }, { status: 401 })
   }),
 
-  // Alternative endpoint for current user
-  http.get('/api/me', ({ request }) => {
+  // Alternative endpoint for current user  
+  http.get('/api/auth/me', ({ request }) => {
     const cookie = request.headers.get('cookie')
     if (cookie?.includes('laravel_session=mock-session')) {
-      return HttpResponse.json({ user: fakeUser }, { status: 200 })
+      return HttpResponse.json({ data: fakeUser }, { status: 200 })
     }
     return HttpResponse.json({ message: 'Unauthenticated' }, { status: 401 })
   }),
 
   // Logout
-  http.post('/api/logout', () => {
+  http.post('/api/auth/logout', () => {
     return new HttpResponse(null, { 
       status: 204,
       headers: {
