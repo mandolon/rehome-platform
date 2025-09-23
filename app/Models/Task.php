@@ -170,7 +170,7 @@ class Task extends Model
             return null;
         }
         
-        return now()->diffInDays($this->due_date, false);
+        return (int) now()->diffInDays($this->due_date, false);
     }
 
     /**
