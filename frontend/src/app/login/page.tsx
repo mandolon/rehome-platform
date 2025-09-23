@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { login, getUser } from '@/lib/api'
+import { login as authLogin } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,12 +28,11 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // Login and then get user data
-      await login(email, password)
-      await getUser()
+      // Login using the new auth function
+      await authLogin(email, password)
       
-      // Redirect to home on success
-      router.push('/')
+      // Redirect to dashboard on success
+      router.push('/dashboard')
     } catch (err) {
       const apiError = err as ApiError
       
