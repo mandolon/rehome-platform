@@ -42,12 +42,14 @@ export const handlers = [
   }),
 
   // Login
-  http.post('/api/login', async ({ request }) => {
+  http.post('/api/auth/login', async ({ request }) => {
+    console.log('MSW: Intercepted POST /api/auth/login')
     try {
       const body = await request.json() as { email: string; password: string }
+      console.log('MSW: Login attempt with email:', body.email)
       
       // Demo credentials
-      let user = fakeEmployee
+      let user: typeof fakeUser | typeof fakeManager | typeof fakeEmployee = fakeEmployee
       if (body.email === 'admin@rehome.build') {
         user = fakeUser
       } else if (body.email === 'manager@rehome.build') {
@@ -57,9 +59,10 @@ export const handlers = [
       }
       
       if (body.email && body.password) {
+        console.log('MSW: Login successful for:', body.email)
         return HttpResponse.json({ 
-          token: 'demo-token-123', 
-          user 
+          data: user,
+          message: 'Login successful'
         }, { 
           status: 200,
           headers: {
@@ -68,6 +71,7 @@ export const handlers = [
         })
       }
       
+      console.log('MSW: Login failed for:', body.email)
       return HttpResponse.json({ 
         message: 'Invalid credentials',
         errors: {
@@ -75,6 +79,7 @@ export const handlers = [
         }
       }, { status: 422 })
     } catch (error) {
+      console.error('MSW: Login handler error:', error)
       return HttpResponse.json({ 
         message: 'Invalid request' 
       }, { status: 400 })
@@ -82,7 +87,7 @@ export const handlers = [
   }),
 
   // Register
-  http.post('/api/register', async ({ request }) => {
+  http.post('/api/auth/register', async ({ request }) => {
     try {
       const body = await request.json() as {
         name: string
@@ -123,8 +128,8 @@ export const handlers = [
       }
       
       return HttpResponse.json({ 
-        token: 'demo-token-456', 
-        user: newUser 
+        data: newUser,
+        message: 'Registration successful'
       }, { 
         status: 201,
         headers: {
@@ -139,27 +144,29 @@ export const handlers = [
   }),
 
   // Get current user
-  http.get('/api/user', ({ request }) => {
+  http.get('/api/auth/me', ({ request }) => {
+    console.log('MSW: Intercepted GET /api/auth/me')
     const cookie = request.headers.get('cookie')
+    console.log('MSW: Cookie header:', cookie)
+    
     if (cookie?.includes('laravel_session=mock-session')) {
-      return HttpResponse.json(fakeUser, { status: 200 })
+      console.log('MSW: Valid session found, returning user data')
+      return HttpResponse.json({ 
+        data: fakeUser,
+        message: 'User retrieved successfully'
+      }, { status: 200 })
     }
-    return HttpResponse.json({ message: 'Unauthenticated' }, { status: 401 })
-  }),
-
-  // Alternative endpoint for current user
-  http.get('/api/me', ({ request }) => {
-    const cookie = request.headers.get('cookie')
-    if (cookie?.includes('laravel_session=mock-session')) {
-      return HttpResponse.json({ user: fakeUser }, { status: 200 })
-    }
+    
+    console.log('MSW: No valid session found, returning 401')
     return HttpResponse.json({ message: 'Unauthenticated' }, { status: 401 })
   }),
 
   // Logout
-  http.post('/api/logout', () => {
-    return new HttpResponse(null, { 
-      status: 204,
+  http.post('/api/auth/logout', () => {
+    return HttpResponse.json({ 
+      message: 'Logged out successfully'
+    }, { 
+      status: 200,
       headers: {
         'Set-Cookie': 'laravel_session=; Path=/; HttpOnly; SameSite=lax; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
       },
