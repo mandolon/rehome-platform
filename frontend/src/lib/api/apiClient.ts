@@ -9,15 +9,25 @@ class ApiClient {
   private apiURL: string
 
   constructor() {
-    this.apiURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9000/api'
-    // Extract base URL for CSRF endpoint (remove /api suffix)
-    this.baseURL = this.apiURL.replace('/api', '')
+    // Use mock API base URL when in mock mode, otherwise use the configured API URL
+    if (process.env.NEXT_PUBLIC_USE_API_MOCK === '1') {
+      this.apiURL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api'
+      this.baseURL = '' // No separate base URL needed for mock mode
+    } else {
+      this.apiURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9000/api'
+      // Extract base URL for CSRF endpoint (remove /api suffix)
+      this.baseURL = this.apiURL.replace('/api', '')
+    }
   }
 
   // Helper to get CSRF cookie
   async csrf(): Promise<void> {
     try {
-      await fetch(`${this.baseURL}/sanctum/csrf-cookie`, {
+      const csrfUrl = process.env.NEXT_PUBLIC_USE_API_MOCK === '1' 
+        ? '/sanctum/csrf-cookie'  // Mock endpoint
+        : `${this.baseURL}/sanctum/csrf-cookie`  // Real Laravel endpoint
+        
+      await fetch(csrfUrl, {
         method: 'GET',
         credentials: 'include',
         headers: {
