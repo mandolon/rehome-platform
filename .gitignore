@@ -137,3 +137,20 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Laravel Backend
+backend/.env
+backend/vendor/
+backend/node_modules/
+backend/public/hot
+backend/public/storage
+backend/storage/*.key
+backend/.phpunit.result.cache
+backend/Homestead.json
+backend/Homestead.yaml
+backend/auth.json
+backend/.phpstorm.meta.php
+backend/_ide_helper.php
+backend/.idea/
+backend/*.log
+backend/.DS_Store
