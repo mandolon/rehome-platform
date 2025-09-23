@@ -80,10 +80,3 @@ export interface RegisterData {
   password: string
   password_confirmation: string
 }
-
-// API Error interface
-export interface ApiError {
-  message: string
-  status: number
-  errors?: Record<string, string[]>
-}

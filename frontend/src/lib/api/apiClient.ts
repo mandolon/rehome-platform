@@ -1,4 +1,8 @@
-import { ApiError } from '@/lib/types'
+interface ApiError {
+  message: string
+  errors?: Record<string, string[]>
+  status: number
+}
 
 class ApiClient {
   private baseURL: string
@@ -22,7 +26,10 @@ class ApiClient {
       })
     } catch (error) {
       console.error('CSRF cookie request failed:', error)
-      throw new ApiError('Failed to initialize CSRF protection', 500)
+      throw {
+        message: 'Failed to initialize CSRF protection',
+        status: 500,
+      } as ApiError
     }
   }
 
@@ -109,4 +116,3 @@ class ApiClient {
 
 // Export singleton instance
 export const apiClient = new ApiClient()
-export { ApiError }
