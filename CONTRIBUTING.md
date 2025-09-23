@@ -42,6 +42,8 @@ All pull requests must pass the following checks before being merged:
 - Pull requests must pass CI checks before merging
 - Pull requests require maintainer approval
 
+For detailed branch protection configuration and maintainer setup instructions, see [Branch Protection Settings](docs/branch-protection.md).
+
 ## Development Setup
 
 ### Backend (Laravel)
