@@ -34,3 +34,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Additional frontend ignores
+.turbo/
+dist/
+build/
+.env*
+coverage/
