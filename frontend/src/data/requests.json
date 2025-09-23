@@ -1,0 +1,52 @@
+[
+  {
+    "id": "req-001",
+    "title": "Update user authentication system",
+    "requester": "John Doe",
+    "assignee": "Alice Smith",
+    "status": "open",
+    "createdAt": "2025-09-20T10:00:00Z",
+    "updatedAt": "2025-09-20T10:00:00Z",
+    "summary": "Need to implement two-factor authentication for enhanced security"
+  },
+  {
+    "id": "req-002", 
+    "title": "Add dark mode support",
+    "requester": "Jane Wilson",
+    "assignee": "Bob Johnson",
+    "status": "in_review",
+    "createdAt": "2025-09-18T14:30:00Z",
+    "updatedAt": "2025-09-22T09:15:00Z",
+    "summary": "Users are requesting a dark mode toggle for better user experience"
+  },
+  {
+    "id": "req-003",
+    "title": "Fix email notification bug",
+    "requester": "Mike Davis",
+    "assignee": "Carol Brown",
+    "status": "resolved", 
+    "createdAt": "2025-09-15T08:45:00Z",
+    "updatedAt": "2025-09-21T16:20:00Z",
+    "summary": "Email notifications are not being sent for project updates"
+  },
+  {
+    "id": "req-004",
+    "title": "Implement file upload feature",
+    "requester": "Sarah Miller",
+    "assignee": null,
+    "status": "open",
+    "createdAt": "2025-09-23T11:20:00Z",
+    "updatedAt": "2025-09-23T11:20:00Z",
+    "summary": "Allow users to upload documents and images to project tasks"
+  },
+  {
+    "id": "req-005",
+    "title": "Performance optimization",
+    "requester": "David Lee",
+    "assignee": "Emma Thompson",
+    "status": "in_review",
+    "createdAt": "2025-09-19T16:10:00Z", 
+    "updatedAt": "2025-09-23T08:30:00Z",
+    "summary": "Dashboard is loading slowly with large datasets"
+  }
+]
