@@ -1,0 +1,73 @@
+### Rehome Platform API Tests
+### Complete Sanctum SPA Authentication Flow
+### Use with REST Client extension in VS Code
+
+@baseUrl = http://localhost:9000
+@frontendUrl = http://localhost:3000
+
+### 1. Health Check
+GET {{baseUrl}}/api/health
+Accept: application/json
+
+### 2. CSRF Bootstrap (sets XSRF-TOKEN + session cookies)
+GET {{baseUrl}}/sanctum/csrf-cookie
+Origin: {{frontendUrl}}
+Referer: {{frontendUrl}}
+
+### 3. Register New User
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+Origin: {{frontendUrl}}
+Referer: {{frontendUrl}}
+X-XSRF-TOKEN: {{$extractCookieValue XSRF-TOKEN}}
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "password",
+  "password_confirmation": "password",
+  "role": "team_member"
+}
+
+### 4. Login (Admin User)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+Origin: {{frontendUrl}}
+Referer: {{frontendUrl}}
+X-XSRF-TOKEN: {{$extractCookieValue XSRF-TOKEN}}
+
+{
+  "email": "admin@rehome.com",
+  "password": "password"
+}
+
+### 5. Get Current User (requires authentication)
+GET {{baseUrl}}/api/auth/me
+Accept: application/json
+Origin: {{frontendUrl}}
+Referer: {{frontendUrl}}
+
+### 6. Get Projects (protected route)
+GET {{baseUrl}}/api/projects
+Accept: application/json
+Origin: {{frontendUrl}}
+Referer: {{frontendUrl}}
+
+### 7. Logout
+POST {{baseUrl}}/api/auth/logout
+Content-Type: application/json
+Origin: {{frontendUrl}}
+Referer: {{frontendUrl}}
+X-XSRF-TOKEN: {{$extractCookieValue XSRF-TOKEN}}
+
+### 8. Test Unauthenticated Access (should get 401)
+GET {{baseUrl}}/api/auth/me
+Accept: application/json
+Origin: {{frontendUrl}}
+Referer: {{frontendUrl}}
+
+### Production Environment Tests
+### Change @baseUrl and @frontendUrl for prod testing
+
+# @baseUrl = https://api.yourdomain.com
+# @frontendUrl = https://app.yourdomain.com

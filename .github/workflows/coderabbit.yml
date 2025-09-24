@@ -1,0 +1,203 @@
+name: CodeRabbit CI
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/**'
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: testing
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          coverage: none
+
+      - name: Copy environment file
+        run: |
+          cd backend
+          cp .env.example .env
+          sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/' .env
+          sed -i 's/# DB_HOST=127.0.0.1/DB_HOST=127.0.0.1/' .env
+          sed -i 's/# DB_PORT=3306/DB_PORT=3306/' .env
+          sed -i 's/# DB_DATABASE=laravel/DB_DATABASE=testing/' .env
+          sed -i 's/# DB_USERNAME=root/DB_USERNAME=root/' .env
+          sed -i 's/# DB_PASSWORD=/DB_PASSWORD=password/' .env
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: backend/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Validate Composer
+        run: cd backend && composer validate --strict
+
+      - name: Install Composer dependencies
+        run: cd backend && composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Generate application key
+        run: cd backend && php artisan key:generate
+
+      - name: Run database migrations
+        run: cd backend && php artisan migrate --force
+
+      - name: Run tests
+        run: cd backend && php artisan test
+
+      - name: Check code style (optional)
+        run: |
+          cd backend
+          if [ -f "./vendor/bin/pint" ]; then
+            ./vendor/bin/pint --test
+          else
+            echo "Laravel Pint not installed, skipping code style check"
+          fi
+        continue-on-error: true
+
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: cd frontend && npm ci
+
+      - name: Run linter
+        run: cd frontend && npm run lint
+
+      - name: Run type check
+        run: cd frontend && npm run typecheck
+
+      - name: Run tests
+        run: cd frontend && npm run test
+
+      - name: Build application (optional)
+        run: cd frontend && npm run build
+        continue-on-error: true
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run backend security audit
+        run: |
+          cd backend
+          if [ -f "composer.lock" ]; then
+            composer audit
+          fi
+        continue-on-error: true
+
+      - name: Setup Node.js for security scan
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Run frontend security audit
+        run: |
+          cd frontend
+          if [ -f "package-lock.json" ]; then
+            npm audit --audit-level=high
+          fi
+        continue-on-error: true
+
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for large files
+        run: |
+          find . -type f -size +10M -not -path "./node_modules/*" -not -path "./vendor/*" -not -path "./.git/*" | while read file; do
+            echo "Warning: Large file detected: $file"
+          done
+
+      - name: Check for secrets
+        run: |
+          if grep -r "password\|secret\|key\|token" --include="*.php" --include="*.js" --include="*.ts" --exclude-dir=node_modules --exclude-dir=vendor . | grep -v "example\|test\|spec"; then
+            echo "Warning: Potential secrets found in code"
+          fi
+        continue-on-error: true
+
+      - name: Check file permissions
+        run: |
+          find . -type f -perm /111 -not -path "./.git/*" -not -path "./node_modules/*" -not -path "./vendor/*" | while read file; do
+            echo "Warning: Executable file: $file"
+          done
+
+  notify-coderabbit:
+    name: Notify CodeRabbit
+    runs-on: ubuntu-latest
+    needs: [backend-tests, frontend-tests]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Comment PR with results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const backendStatus = '${{ needs.backend-tests.result }}';
+            const frontendStatus = '${{ needs.frontend-tests.result }}';
+            
+            let message = '## 🤖 CodeRabbit CI Results\n\n';
+            message += `- **Backend Tests**: ${backendStatus === 'success' ? '✅ Passed' : '❌ Failed'}\n`;
+            message += `- **Frontend Tests**: ${frontendStatus === 'success' ? '✅ Passed' : '❌ Failed'}\n\n`;
+            
+            if (backendStatus === 'success' && frontendStatus === 'success') {
+              message += '🎉 All checks passed! This PR is ready for CodeRabbit AI review.';
+            } else {
+              message += '⚠️ Some checks failed. Please fix the issues before requesting review.';
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

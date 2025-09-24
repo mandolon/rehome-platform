@@ -1,0 +1,241 @@
+# CodeRabbit AI Review Configuration
+# https://docs.coderabbit.ai/configuration
+
+# General settings
+language: en
+early_access: false
+auto_review:
+  enabled: true
+  drafts: false
+
+# Review settings
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: true
+  review_status: true
+  collapse_ellipsis: true
+  auto_reply: true
+
+# Path-based configuration with explicit rules
+path_filters:
+  # Backend paths - explicit coverage
+  - "backend/app/**"
+  - "backend/routes/**"
+  - "backend/database/**"
+  - "backend/config/**"
+  - "backend/bootstrap/**"
+  - "backend/composer.json"
+  - "backend/composer.lock"
+  
+  # Frontend paths - explicit coverage
+  - "frontend/src/**"
+  - "frontend/package.json"
+  - "frontend/package-lock.json"
+  - "frontend/tsconfig.json"
+  - "frontend/next.config.mjs"
+  
+  # Exclude patterns
+  - "!**/node_modules/**"
+  - "!**/vendor/**"
+  - "!**/storage/**"
+  - "!**/bootstrap/cache/**"
+  - "!**/.next/**"
+  - "!**/dist/**"
+  - "!**/build/**"
+  - "!**/coverage/**"
+
+# Backend-specific rules
+backend:
+  paths:
+    - "backend/app/**/*.php"
+    - "backend/routes/**/*.php"
+    - "backend/database/**/*.php"
+    - "backend/config/**/*.php"
+    - "backend/bootstrap/**/*.php"
+    - "backend/composer.json"
+    - "backend/composer.lock"
+  
+  # PHP/Laravel specific checks - REQUIRED TO PASS
+  rules:
+    - check_composer_validation
+    - check_laravel_conventions
+    - check_security_vulnerabilities
+    - check_code_quality
+    - check_test_coverage
+    - check_sanctum_auth_middleware
+  
+  # Commands to run for backend validation - ALL REQUIRED
+  validation_commands:
+    - name: "Validate Composer"
+      command: "cd backend && composer validate --strict"
+      required: true
+      must_pass: true
+    
+    - name: "Install Dependencies"
+      command: "cd backend && composer install --no-interaction --prefer-dist --optimize-autoloader"
+      required: true
+      must_pass: true
+    
+    - name: "Run Tests"
+      command: "cd backend && php artisan test"
+      required: true
+      must_pass: true
+    
+    - name: "Security Audit"
+      command: "cd backend && composer audit"
+      required: true
+      must_pass: true
+    
+    - name: "Check Code Style"
+      command: "cd backend && ./vendor/bin/pint --test"
+      required: false
+      must_pass: false
+
+# Frontend-specific rules  
+frontend:
+  paths:
+    - "frontend/src/**/*.ts"
+    - "frontend/src/**/*.tsx"
+    - "frontend/src/**/*.js"
+    - "frontend/src/**/*.jsx"
+    - "frontend/package.json"
+    - "frontend/package-lock.json"
+    - "frontend/tsconfig.json"
+  
+  # TypeScript/React specific checks - REQUIRED TO PASS
+  rules:
+    - check_typescript_errors
+    - check_react_best_practices
+    - check_accessibility
+    - check_performance
+    - check_security_vulnerabilities
+    - check_axios_credentials_config
+  
+  # Commands to run for frontend validation - ALL REQUIRED
+  validation_commands:
+    - name: "Install Dependencies"
+      command: "cd frontend && npm ci"
+      required: true
+      must_pass: true
+    
+    - name: "Lint Code"
+      command: "cd frontend && npm run lint"
+      required: true
+      must_pass: true
+    
+    - name: "Type Check"
+      command: "cd frontend && npm run typecheck"
+      required: true
+      must_pass: true
+    
+    - name: "Run Tests"
+      command: "cd frontend && npm run test"
+      required: true
+      must_pass: true
+    
+    - name: "Security Audit"
+      command: "cd frontend && npm audit --audit-level=high"
+      required: true
+      must_pass: true
+    
+    - name: "Build Check"
+      command: "cd frontend && npm run build"
+      required: false
+      must_pass: false
+
+# File-specific configurations
+file_types:
+  php:
+    - check_laravel_best_practices
+    - check_eloquent_usage
+    - check_middleware_usage
+    - check_validation_rules
+  
+  typescript:
+    - check_type_safety
+    - check_react_hooks_rules
+    - check_component_structure
+  
+  json:
+    - validate_json_syntax
+    - check_package_vulnerabilities
+
+# Security checks
+security:
+  enabled: true
+  check_dependencies: true
+  check_secrets: true
+  check_sql_injection: true
+  check_xss_vulnerabilities: true
+
+# Performance checks
+performance:
+  enabled: true
+  check_n_plus_one_queries: true
+  check_large_file_uploads: true
+  check_inefficient_loops: true
+
+# Documentation checks
+documentation:
+  enabled: true
+  require_docblocks: false
+  check_readme_updates: true
+  check_api_documentation: true
+
+# Custom prompts for specific scenarios
+custom_prompts:
+  laravel_migration:
+    - "Check if migration has proper rollback method"
+    - "Verify foreign key constraints are properly defined"
+    - "Ensure indexes are added for frequently queried columns"
+  
+  react_component:
+    - "Check if component follows React best practices"
+    - "Verify proper prop types and default values"
+    - "Ensure accessibility attributes are present"
+  
+  api_endpoint:
+    - "Verify proper authentication and authorization"
+    - "Check input validation and sanitization"
+    - "Ensure proper error handling and status codes"
+  
+  # SANCTUM SPA SPECIFIC PROMPTS
+  laravel_api_routes:
+    - "🔒 CRITICAL: Check if API routes requiring authentication have 'auth:sanctum' middleware"
+    - "Verify that state-changing routes (POST, PUT, PATCH, DELETE) are protected"
+    - "Ensure public routes (login, register, health) are intentionally unprotected"
+    - "Check if route groups properly apply middleware to all nested routes"
+    - "Flag any routes in routes/api.php that handle sensitive data without authentication"
+  
+  axios_configuration:
+    - "🔒 CRITICAL: Verify axios instances have 'withCredentials: true' for Sanctum SPA"
+    - "Check if axios config includes 'xsrfCookieName: XSRF-TOKEN' and 'xsrfHeaderName: X-XSRF-TOKEN'"
+    - "Ensure API calls to Laravel backend send credentials for session-based auth"
+    - "Flag axios calls that might bypass CSRF protection"
+    - "Verify baseURL points to correct backend origin for cookie domain matching"
+  
+  cors_security_config:
+    - "🔒 CRITICAL: CORS/Security config changes require careful review"
+    - "Check if CORS 'allowed_origins' is properly restricted (no wildcards in production)"
+    - "Verify 'supports_credentials: true' is set for Sanctum SPA authentication"
+    - "Ensure SESSION_DOMAIN and SANCTUM_STATEFUL_DOMAINS match frontend domain"
+    - "Flag any changes to session security settings (SECURE_COOKIE, SAME_SITE)"
+    - "Review any modifications to middleware order that could affect auth flow"
+  
+  sanctum_auth_flow:
+    - "Verify CSRF cookie initialization before state-changing requests"
+    - "Check if login flow properly handles session-based authentication"
+    - "Ensure logout properly invalidates both client and server sessions"
+    - "Flag any hardcoded API keys or tokens that should use session auth"
+
+# Ignore patterns
+ignore:
+  - "**/*.min.js"
+  - "**/*.min.css"
+  - "**/coverage/**"
+  - "**/cypress/videos/**"
+  - "**/cypress/screenshots/**"
+  - "**/.env*"
+  - "**/storage/logs/**"
