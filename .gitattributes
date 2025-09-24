@@ -1,0 +1,68 @@
+# Text files
+*.txt text
+*.md text
+*.json text
+*.yml text
+*.yaml text
+*.xml text
+*.csv text
+*.sql text
+
+# Code files  
+*.php text
+*.js text
+*.ts text
+*.tsx text
+*.jsx text
+*.css text
+*.scss text
+*.html text
+*.blade.php text
+
+# Configuration files
+*.env* text
+*.conf text
+*.config text
+.htaccess text
+.editorconfig text
+.gitignore text
+.gitattributes text
+
+# Shell scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.webp binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+
+# Language-specific settings
+*.php diff=php
+*.js linguist-language=JavaScript
+*.ts linguist-language=TypeScript
+*.tsx linguist-language=TypeScript
+*.jsx linguist-language=JavaScript
+
+# Laravel specific
+storage/ export-ignore
+tests/ export-ignore
+.env.example export-ignore
+
+# Frontend specific  
+node_modules/ export-ignore
+.next/ export-ignore
+cypress/ export-ignore

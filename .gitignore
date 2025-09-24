@@ -142,3 +142,21 @@ vite.config.ts.timestamp-*
 .idea/
 .vscode/
 .DS_Store
+
+# Laravel specific
+backend/storage/logs/*.log
+backend/bootstrap/cache/*
+backend/vendor/
+backend/.phpunit.result.cache
+
+# Environment files (keep examples)
+.env
+.env.local
+.env.production
+.env.development
+!.env.example
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
