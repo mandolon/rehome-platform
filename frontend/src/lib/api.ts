@@ -6,6 +6,10 @@ const axiosInstance = axios.create({
   withCredentials: true,
   xsrfCookieName: 'XSRF-TOKEN',
   xsrfHeaderName: 'X-XSRF-TOKEN',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  },
 })
 
 /**
