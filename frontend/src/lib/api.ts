@@ -4,6 +4,8 @@ import axios from 'axios'
 const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:9000'}${process.env.NEXT_PUBLIC_API_PREFIX || '/api'}`,
   withCredentials: true,
+  xsrfCookieName: 'XSRF-TOKEN',
+  xsrfHeaderName: 'X-XSRF-TOKEN',
 })
 
 /**
