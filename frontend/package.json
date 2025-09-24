@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "dev:auth:e2e": "powershell -ExecutionPolicy Bypass -File ../scripts/dev-auth-e2e.ps1"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",

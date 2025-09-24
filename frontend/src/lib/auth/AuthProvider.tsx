@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { User, LoginCredentials, RegisterData } from '@/lib/types'
-import { authApi } from '@/lib/api/auth'
+import { login as apiLogin, logout as apiLogout, register as apiRegister, me as apiMe } from '@/lib/api'
 
 interface AuthContextType {
   user: User | null
@@ -31,7 +31,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const refreshMe = async () => {
     try {
       setLoading(true)
-      const response = await authApi.me()
+      const response = await apiMe()
       setUser(response.data)
     } catch (error) {
       setUser(null)
@@ -43,7 +43,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (credentials: LoginCredentials) => {
     try {
-      const response = await authApi.login(credentials)
+      const response = await apiLogin(credentials)
       setUser(response.data)
     } catch (error) {
       throw error
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const register = async (data: RegisterData) => {
     try {
-      const response = await authApi.register(data)
+      const response = await apiRegister(data)
       setUser(response.data)
     } catch (error) {
       throw error
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
-      await authApi.logout()
+      await apiLogout()
       setUser(null)
     } catch (error) {
       // Even if logout fails on server, clear user locally

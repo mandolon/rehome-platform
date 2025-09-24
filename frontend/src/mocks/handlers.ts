@@ -162,11 +162,11 @@ export const handlers = [
   }),
 
   // Logout
-  http.post('/api/auth/logout', () => {
+  http.post('/logout', () => {
     return HttpResponse.json({ 
       message: 'Logged out successfully'
     }, { 
-      status: 200,
+      status: 204,
       headers: {
         'Set-Cookie': 'laravel_session=; Path=/; HttpOnly; SameSite=lax; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
       },

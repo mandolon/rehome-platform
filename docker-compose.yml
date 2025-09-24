@@ -2,15 +2,15 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: rehome
-      POSTGRES_USER: rehome
-      POSTGRES_PASSWORD: rehome
+      POSTGRES_DB: app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U rehome -d rehome"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d app"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,13 +24,13 @@ services:
     env_file:
       - ./backend/.env.docker
     volumes:
-      - ./backend:/app
+      - ./backend:/var/www/html
     healthcheck:
       test: ["CMD", "php", "-r", "echo 'ok';"]
       interval: 10s
       timeout: 5s
       retries: 3
-    command: ["sh", "-c", "/app/docker/start.sh"]
+    entrypoint: ["/usr/local/bin/start.sh"]
 
 volumes:
   postgres_data:

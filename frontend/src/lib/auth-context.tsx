@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { login as authLogin, logout as authLogout, me as getMe } from './auth'
+import { login as apiLogin, logout as apiLogout, me as apiMe } from './api'
 
 interface User {
   id: number
@@ -34,8 +34,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await getMe()
-      setUser(response.user)
+      const response = await apiMe()
+      setUser(response.data)
     } catch (error) {
       // User not authenticated, clear any stale state
       setUser(null)
@@ -47,8 +47,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     setLoading(true)
     try {
-      const response = await authLogin(email, password)
-      setUser(response.user)
+      const response = await apiLogin({ email, password })
+      setUser(response.data)
       router.push('/dashboard')
     } catch (error) {
       setLoading(false)
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      await authLogout()
+      await apiLogout()
     } catch (error) {
       console.warn('Logout request failed, clearing local state anyway')
     } finally {
@@ -70,8 +70,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const response = await getMe()
-      setUser(response.user)
+      const response = await apiMe()
+      setUser(response.data)
     } catch (error) {
       // If refresh fails, user is no longer authenticated
       setUser(null)
