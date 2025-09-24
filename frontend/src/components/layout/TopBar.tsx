@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
-import { LogOut, Settings, User } from 'lucide-react'
+import { LogOut, Settings, User, Shield } from 'lucide-react'
 
 export function TopBar() {
   const { user, logout } = useAuth()
@@ -37,6 +37,17 @@ export function TopBar() {
         <Badge variant="secondary" className="capitalize">
           {user.role.replace('_', ' ')}
         </Badge>
+        {user.role === 'admin' && (
+          <a
+            href="http://127.0.0.1:9000/admin"
+            target="_blank"
+            rel="noreferrer"
+            className="text-sm text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+          >
+            <Shield className="h-4 w-4" />
+            <span>Admin</span>
+          </a>
+        )}
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
