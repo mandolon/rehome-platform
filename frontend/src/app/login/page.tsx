@@ -3,7 +3,11 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+<<<<<<< HEAD
 import { authService } from '@/lib/auth'
+=======
+import { login as authLogin } from '@/lib/auth'
+>>>>>>> 0c9b8702315dc961cad84274bc98a1b804cd5c22
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -29,12 +33,23 @@ export default function LoginPage() {
     setError('')
 
     try {
+<<<<<<< HEAD
       // Login with the new auth service
       await authService.login(email, password)
       
       // Redirect to home on success
       router.push('/')
     } catch (err: any) {
+=======
+      // Login using the new auth function
+      await authLogin(email, password)
+      
+      // Redirect to dashboard on success
+      router.push('/dashboard')
+    } catch (err) {
+      const apiError = err as ApiError
+      
+>>>>>>> 0c9b8702315dc961cad84274bc98a1b804cd5c22
       // Handle specific error codes
       if (err.status === 401 || err.status === 419) {
         setError('Invalid credentials or session expired. Please try again.')
