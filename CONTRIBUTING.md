@@ -117,6 +117,8 @@ The following GitHub Actions checks must pass before merging:
 
 All ✅ checks must pass for PR to be mergeable. ⚠️ checks are informational only.
 
+For detailed branch protection configuration and maintainer setup instructions, see [Branch Protection Settings](docs/branch-protection.md).
+
 ## Development Setup
 
 ### Backend (Laravel)
