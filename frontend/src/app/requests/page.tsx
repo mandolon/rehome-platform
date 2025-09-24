@@ -19,7 +19,8 @@ interface Request {
 }
 
 export default function RequestsPage() {
-  const [requests] = useState<Request[]>(requestsData)
+  const [requests] = useState<Request[]>(requestsData as Request[])
+  
   
   const filterRequestsByStatus = (status: RequestStatus) => {
     return requests.filter(request => request.status === status)

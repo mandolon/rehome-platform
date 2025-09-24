@@ -3,15 +3,16 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { login, getUser } from '@/lib/api'
+import { authService } from '@/lib/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-interface ApiError {
+interface AuthError {
   message: string
   errors?: Record<string, string[]>
+  status?: number
 }
 
 export default function LoginPage() {
@@ -28,20 +29,17 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // Login and then get user data
-      await login(email, password)
-      await getUser()
+      // Login with the new auth service
+      await authService.login(email, password)
       
       // Redirect to home on success
       router.push('/')
-    } catch (err) {
-      const apiError = err as ApiError
-      
+    } catch (err: any) {
       // Handle specific error codes
-      if ('status' in err && (err.status === 401 || err.status === 419)) {
+      if (err.status === 401 || err.status === 419) {
         setError('Invalid credentials or session expired. Please try again.')
       } else {
-        setError(apiError.message || 'Login failed')
+        setError(err.message || 'Login failed')
       }
     } finally {
       setLoading(false)
