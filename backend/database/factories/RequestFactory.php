@@ -65,3 +65,4 @@ class RequestFactory extends Factory
         ]);
     }
 }
+

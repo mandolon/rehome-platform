@@ -52,3 +52,4 @@ class Request extends Model
         return $this->hasMany(RequestParticipant::class);
     }
 }
+
