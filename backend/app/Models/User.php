@@ -14,6 +14,9 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasApiTokens;
 
+    public const ROLES = ['admin','team','client'];
+    public const TEAM_TYPES = ['architect','engineer','designer','consultant'];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -24,6 +27,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'team_type',
         'profile',
     ];
 
@@ -47,6 +51,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => 'string',
+            'team_type' => 'string',
             'profile' => 'array',
         ];
     }
@@ -84,6 +90,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user is a specific team type.
+     */
+    public function isTeamType(?string $type): bool
+    {
+        return $type && $this->team_type === $type;
+    }
+
+    /**
      * Check if the user is an admin.
      */
     public function isAdmin(): bool
@@ -96,8 +110,10 @@ class User extends Authenticatable
      */
     public function isProjectManager(): bool
     {
-        return $this->hasRole('project_manager');
+        return $this->hasRole('team');
     }
 }
+
+
 
 
