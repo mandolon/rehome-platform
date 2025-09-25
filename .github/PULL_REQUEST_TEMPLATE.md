@@ -22,9 +22,9 @@
 - [ ] **Auth smoke test**: login → me → logout works
 - [ ] **Security audit**: No new vulnerabilities introduced
 
-## CodeRabbit AI Review
-- [ ] All CodeRabbit suggestions addressed or explained
-- [ ] No critical security flags raised
+## Review Checklist
+- [ ] All automated checks passing
+- [ ] No critical security issues identified
 - [ ] Authentication patterns follow Sanctum SPA best practices
 
 ## Screenshots/Recording (if UI changes)
@@ -37,4 +37,4 @@
 - [ ] Breaking changes documented with migration guide
 
 ## Additional Notes
-<!-- Any additional context for reviewers and CodeRabbit -->
+<!-- Any additional context for reviewers -->

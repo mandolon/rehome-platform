@@ -74,6 +74,3 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('requests/{requestModel}/assign', [RequestController::class, 'assign']);
     Route::post('requests/{requestModel}/status', [RequestController::class, 'setStatus']);
 });
- 
-// TEST: This should trigger CodeRabbit auth guard warning 
-Route::post('/auth/danger', fn() => 'nope');

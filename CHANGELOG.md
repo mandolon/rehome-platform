@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- CodeRabbit AI automated code reviews with Sanctum SPA security prompts
 - GitHub Actions CI/CD pipeline with backend/frontend testing
 - Comprehensive authentication flow with Laravel Sanctum SPA
 - Auto-labeling workflow for security-sensitive PRs

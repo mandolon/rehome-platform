@@ -30,41 +30,12 @@ All pull requests must pass the following checks before being merged:
 
 - **Backend**: All tests must pass (`php artisan test`)
 - **Frontend**: Code must pass linting (`npm run lint`), type checking (`npm run typecheck`), and tests (`npm run test`)
-- **CodeRabbit AI Review**: Automated AI code review will analyze your changes
 - **Code review**: At least one approval from a maintainer
 - **Documentation**: Update relevant documentation if your changes affect user-facing features or APIs
 
-### 🤖 CodeRabbit AI Reviews
+### CI/CD Integration
 
-This repository uses **CodeRabbit AI** for automated code reviews on all pull requests. CodeRabbit will:
-
-- **Analyze code quality** and suggest improvements
-- **Check for security vulnerabilities** and best practices
-- **Review Laravel and React patterns** for adherence to conventions
-- **Validate test coverage** and suggest additional tests
-- **Check for performance issues** and optimization opportunities
-
-**Setup Required**: The CodeRabbit GitHub App must be installed from the [GitHub Marketplace](https://github.com/marketplace/coderabbit-ai) for AI reviews to work.
-
-#### What CodeRabbit Checks
-
-**Backend (Laravel)**:
-- Composer validation and dependency security
-- Laravel best practices and conventions
-- Eloquent usage and N+1 query detection
-- Security vulnerabilities (SQL injection, XSS)
-- Test coverage and quality
-
-**Frontend (Next.js/React)**:
-- TypeScript type safety and strict checks
-- React hooks and component best practices
-- Accessibility (a11y) compliance
-- Performance optimizations
-- Security vulnerabilities in dependencies
-
-#### CI/CD Integration
-
-Our GitHub Actions workflow (`.github/workflows/coderabbit.yml`) runs automatically on pull requests and includes:
+Our GitHub Actions workflows run automatically on pull requests and include:
 
 - **Backend Tests**: `composer install` → `php artisan test`
 - **Frontend Tests**: `npm ci` → `npm run lint` → `npm run typecheck` → `npm run test`  
@@ -90,11 +61,7 @@ The following GitHub Actions checks must pass before merging:
 - `Code Quality Checks` - File size, secrets, and permissions validation
 
 **ℹ️ Informational Checks:**
-- `Notify CodeRabbit` - Posts CI results summary to PR
-
-**🤖 CodeRabbit AI Review:**
-- Automated code review with security and best practice analysis
-- Must complete successfully (no blocking issues flagged)
+- Auto-labeling based on files changed
 
 #### Specific Check Requirements
 
