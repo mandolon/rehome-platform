@@ -3,6 +3,8 @@
 .env
 .env.*
 !.env.example
+!.env.vapor.staging
+!.env.vapor.production
 .phpactor.json
 .phpunit.result.cache
 /.fleet

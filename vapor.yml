@@ -1,0 +1,45 @@
+# Rehome — Laravel Vapor bootstrap (NO DEPLOY — placeholders only)
+name: rehome-platform
+environments:
+  staging:
+    runtime: "php-8.3:al2"
+    provider: aws
+    region: us-west-2
+    memory: 1024
+    timeout: 120
+    cli-memory: 512
+    cli-timeout: 120
+    queue-timeout: 120
+    assets: true
+    warm: 1
+    database: rehome-staging
+    cache: rehome-staging
+    storage: rehome-staging
+    queue: rehome-staging
+    domain: "" # set later in Vapor UI
+    build:
+      - "composer install --no-dev --no-interaction --prefer-dist"
+      - "php artisan event:cache || true"
+      - "php artisan config:cache"
+      - "php artisan route:cache"
+  production:
+    runtime: "php-8.3:al2"
+    provider: aws
+    region: us-west-2
+    memory: 1024
+    timeout: 120
+    cli-memory: 512
+    cli-timeout: 120
+    queue-timeout: 120
+    assets: true
+    warm: 2
+    database: rehome-prod
+    cache: rehome-prod
+    storage: rehome-prod
+    queue: rehome-prod
+    domain: ""
+    build:
+      - "composer install --no-dev --no-interaction --prefer-dist"
+      - "php artisan event:cache || true"
+      - "php artisan config:cache"
+      - "php artisan route:cache"
