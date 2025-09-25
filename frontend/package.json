@@ -11,7 +11,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "health:api": "node -e \"console.log('API Health Check URL: http://127.0.0.1:9000'); console.log('Use snippets/health-checks.http in VS Code for full smoke tests');\"",
+    "csrf:init": "node -e \"console.log('CSRF Init: Use GET /sanctum/csrf-cookie before login'); console.log('See snippets/health-checks.http for full flow');\""
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
@@ -39,6 +41,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^5.0.3",
+    "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "14.2.32",
     "eslint-config-prettier": "^10.1.8",

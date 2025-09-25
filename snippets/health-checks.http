@@ -1,0 +1,111 @@
+# Health Checks & CSRF Smoke Tests
+# =================================
+# Use VS Code REST Client extension to run these requests
+# Variables can be overridden by creating a .vscode/settings.json with rest-client.environmentVariables
+
+@API_URL = {{$dotenv NEXT_PUBLIC_API_URL}}
+@BASE_URL = {{API_URL}}
+
+### Health Check - Basic API connectivity
+# Should return 200 with {"status": "ok"}
+GET {{BASE_URL}}/api/health
+Content-Type: application/json
+
+###
+
+### CSRF Cookie - Initialize session for SPA
+# Should return 204 and set XSRF-TOKEN cookie
+GET {{BASE_URL}}/sanctum/csrf-cookie
+Content-Type: application/json
+
+###
+
+### Login - JSON format (update credentials as needed)
+# Note: Replace email/password with valid test credentials
+# This should return 200 with user data and set session cookie
+POST {{BASE_URL}}/login
+Content-Type: application/json
+X-Requested-With: XMLHttpRequest
+
+{
+  "email": "admin@example.com",
+  "password": "password"
+}
+
+###
+
+### Login - Form data format (alternative)
+# Note: Replace email/password with valid test credentials  
+POST {{BASE_URL}}/login
+Content-Type: application/x-www-form-urlencoded
+X-Requested-With: XMLHttpRequest
+
+email=admin@example.com&password=password
+
+###
+
+### Authenticated User Info
+# Should return 200 with user data when authenticated
+# Run after successful login to verify session
+GET {{BASE_URL}}/api/me
+Content-Type: application/json
+X-Requested-With: XMLHttpRequest
+
+###
+
+### Requests List - Requires authentication
+# Should return paginated list of requests user can access
+GET {{BASE_URL}}/api/requests
+Content-Type: application/json
+X-Requested-With: XMLHttpRequest
+
+###
+
+### CSRF-Protected Request Creation (example)
+# Note: Requires both CSRF cookie AND valid session
+# Update title/description as needed
+POST {{BASE_URL}}/api/requests
+Content-Type: application/json  
+X-Requested-With: XMLHttpRequest
+
+{
+  "title": "Test Request via HTTP Client",
+  "description": "Created via VS Code REST Client for smoke testing",
+  "priority": "med"
+}
+
+###
+
+### Logout - Clean session
+POST {{BASE_URL}}/logout
+Content-Type: application/json
+X-Requested-With: XMLHttpRequest
+
+###
+
+# Environment Examples:
+# =====================
+# Create .vscode/settings.json with:
+# {
+#   "rest-client.environmentVariables": {
+#     "local": {
+#       "API_URL": "http://127.0.0.1:9000"
+#     },
+#     "staging": {
+#       "API_URL": "https://api-staging.rehome-platform.com"
+#     },
+#     "production": {
+#       "API_URL": "https://api.rehome-platform.com"
+#     }
+#   }
+# }
+#
+# Then use Ctrl+Shift+P > "Rest Client: Switch Environment"
+
+# Vapor Parity Notes:
+# ===================
+# These same endpoints should work identically on:
+# - Local Laravel (php artisan serve)
+# - Docker containers  
+# - AWS Lambda/Vapor deployment
+# - Vercel/Netlify edge functions (if using hybrid setup)
