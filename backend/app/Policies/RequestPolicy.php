@@ -30,8 +30,8 @@ class RequestPolicy
 
     public function assign(User $user, RequestModel $request): bool
     {
-        // Admin or creator can assign
-        return $user->isAdmin() || $request->creator_id === $user->id;
+        // Admin, team members, or creator can assign
+        return $user->hasRole('admin') || $user->hasRole('team') || $request->creator_id === $user->id;
     }
 
     public function delete(User $user, RequestModel $request): bool
