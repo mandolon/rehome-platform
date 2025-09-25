@@ -194,5 +194,8 @@ class DatabaseSeeder extends Seeder
         
         // Seed admin user for Filament panel
         $this->call(AdminUserSeeder::class);
+        
+        // Seed demo users by role
+        $this->call(DemoUsersSeeder::class);
     }
 }
