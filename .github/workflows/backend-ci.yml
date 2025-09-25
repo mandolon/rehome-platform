@@ -25,7 +25,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.3"
-          extensions: mbstring, intl, pdo, sqlite, bcmath, ctype, fileinfo, json, tokenizer, xml, dom
+          extensions: mbstring, intl, pdo, pdo_sqlite, sqlite3, bcmath, ctype, fileinfo, json, tokenizer, xml, dom
           coverage: none
 
       - name: Cache Composer
