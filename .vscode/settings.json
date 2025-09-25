@@ -3,7 +3,7 @@
   "terminal.integrated.profiles.windows": {
     "pwsh": {
       "path": "C:\\Program Files\\PowerShell\\7\\pwsh.exe",
-      "args": ["-NoLogo", "-ExecutionPolicy", "RemoteSigned"]
+      "args": ["-NoLogo"]
     }
   },
   "terminal.integrated.shellIntegration.enabled": true,
