@@ -39,6 +39,24 @@ class RequestPolicy
         // Only admin or creator can delete
         return $user->isAdmin() || $request->creator_id === $user->id;
     }
+
+    /**
+     * Update status is restricted to role-based RBAC: admin or team.
+     */
+    public function updateStatus(User $user, RequestModel $request): bool
+    {
+        return $user->hasRole('admin') || $user->hasRole('team');
+    }
+
+    /**
+     * Gate for accessing admin-only UI/actions.
+     */
+    public function adminAccess(User $user): bool
+    {
+        return $user->hasRole('admin');
+    }
 }
+
+
 
 
