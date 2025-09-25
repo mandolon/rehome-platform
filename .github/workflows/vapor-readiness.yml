@@ -1,0 +1,77 @@
+name: Vapor Readiness (No-Deploy)
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  windows-pwsh:
+    name: Windows / PowerShell
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify required files exist
+        run: |
+          $files = @(
+            "vapor.yml",
+            "backend/.env.vapor.staging",
+            "backend/.env.vapor.production",
+            "infra/vapor/README.md",
+            "scripts/check-vapor-readiness.ps1",
+            "scripts/check-vapor-readiness.sh"
+          )
+          $missing = @()
+          foreach ($f in $files) { if (-not (Test-Path $f)) { $missing += $f } }
+          if ($missing.Count -gt 0) {
+            Write-Error ("Missing required files:`n" + ($missing -join "`n"))
+            exit 1
+          }
+
+      - name: Validate .gitignore exceptions for Vapor env templates
+        run: |
+          $gi = Get-Content "backend/.gitignore" -Raw
+          if ($gi -notmatch "!\.env\.vapor\.staging") { Write-Error "Missing exception for .env.vapor.staging"; exit 1 }
+          if ($gi -notmatch "!\.env\.vapor\.production") { Write-Error "Missing exception for .env.vapor.production"; exit 1 }
+
+      - name: Run readiness script (PowerShell)
+        env:
+          APP_ENV: local
+        run: |
+          Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass -Force
+          & ".\scripts\check-vapor-readiness.ps1"
+
+  ubuntu-bash:
+    name: Ubuntu / Bash
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify required files exist
+        run: |
+          set -euo pipefail
+          required=( \
+            "vapor.yml" \
+            "backend/.env.vapor.staging" \
+            "backend/.env.vapor.production" \
+            "infra/vapor/README.md" \
+            "scripts/check-vapor-readiness.ps1" \
+            "scripts/check-vapor-readiness.sh" )
+          missing=0
+          for f in "${required[@]}"; do
+            [[ -f "$f" ]] || { echo "Missing required file: $f"; missing=1; }
+          done
+          exit $missing
+
+      - name: Make script executable
+        run: chmod +x scripts/check-vapor-readiness.sh
+
+      - name: Run readiness script (Bash)
+        env:
+          APP_ENV: local
+        run: ./scripts/check-vapor-readiness.sh

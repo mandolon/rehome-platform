@@ -1,11 +1,11 @@
 # Rehome Platform
   [![Backend CI](https://github.com/<ORG_OR_USER>/rehome-platform/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/<ORG_OR_USER>/rehome-platform/actions/workflows/backend-ci.yml)
+  ![Vapor Readiness](https://github.com/${{ github.repository }}/actions/workflows/vapor-readiness.yml/badge.svg)
   
   Multi-role collaborative platform for architecture and construction teams. Features project management, task tracking, team collaboration, and client portals with real-time updates.
 
 ## Tech Stack
 - **Backend**: Laravel 11 + PostgreSQL
-- **Authentication**: Laravel Sanctum
 - **UI**: Tailwind CSS + shadcn/ui
 - **CI/CD**: GitHub Actions
 
