@@ -51,3 +51,4 @@ Route::post('/logout', function (Request $request) {
         ->withCookie(Cookie::forget('laravel_session'))
         ->withCookie(Cookie::forget('XSRF-TOKEN'));
 })->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class]);
+

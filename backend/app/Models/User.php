@@ -99,3 +99,4 @@ class User extends Authenticatable
         return $this->hasRole('project_manager');
     }
 }
+

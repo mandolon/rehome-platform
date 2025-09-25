@@ -40,3 +40,4 @@ class RequestPolicy
         return $user->isAdmin() || $request->creator_id === $user->id;
     }
 }
+
