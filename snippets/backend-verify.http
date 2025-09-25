@@ -1,0 +1,21 @@
+@API_URL = http://127.0.0.1:9000
+
+### Health Check
+GET {{API_URL}}/api/health
+
+###
+
+### Sanctum CSRF Cookie
+GET {{API_URL}}/sanctum/csrf-cookie
+
+###
+
+### Current User Info (requires prior login cookie)
+GET {{API_URL}}/api/me
+
+###
+
+### Requests Index (auth required)
+GET {{API_URL}}/api/requests
+
+###
