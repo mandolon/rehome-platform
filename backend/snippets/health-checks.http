@@ -1,0 +1,109 @@
+### Rehome Platform - API Health & Auth Checks
+### Run these requests in VS Code with REST Client extension or similar HTTP client
+
+### Variables
+@baseUrl = http://127.0.0.1:9000
+@apiUrl = {{baseUrl}}/api
+@email = admin@demo.test
+@password = password
+
+### 1. Basic API Health Check
+GET {{apiUrl}}/health
+Accept: application/json
+
+###
+
+### 2. CSRF Cookie Initialization
+# This should return 204 and set XSRF-TOKEN cookie
+GET {{baseUrl}}/sanctum/csrf-cookie
+Accept: application/json
+
+###
+
+### 3. Login (requires CSRF token from step 2)
+# This should return 204 on success
+POST {{baseUrl}}/login
+Content-Type: application/json
+X-Requested-With: XMLHttpRequest
+X-XSRF-TOKEN: {{$dotenv XSRF_TOKEN}}
+
+{
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+###
+
+### 4. Get Current User (requires authentication from step 3)
+# This should return user data on success
+GET {{apiUrl}}/me
+Accept: application/json
+
+###
+
+### 5. Test Requests API (requires authentication)
+# This should return paginated requests list
+GET {{apiUrl}}/requests
+Accept: application/json
+
+###
+
+### 6. Logout (requires authentication)
+# This should return 204 and clear session
+POST {{baseUrl}}/logout
+Content-Type: application/json
+X-Requested-With: XMLHttpRequest
+X-XSRF-TOKEN: {{$dotenv XSRF_TOKEN}}
+
+{}
+
+###
+
+### 7. Verify Logout (should return 401)
+# This should return 401 Unauthorized after logout
+GET {{apiUrl}}/me
+Accept: application/json
+
+###
+
+### 8. Test CORS Headers
+# This should include proper CORS headers
+OPTIONS {{apiUrl}}/requests
+Origin: http://localhost:3000
+Access-Control-Request-Method: GET
+Access-Control-Request-Headers: Content-Type,X-Requested-With,X-XSRF-TOKEN,Accept,Authorization
+
+###
+
+### 9. Admin Panel Health Check
+# This should redirect to login or show admin panel
+GET {{baseUrl}}/admin
+Accept: text/html
+
+###
+
+### 10. Database Connection Test
+# This should return database status
+GET {{apiUrl}}/health/database
+Accept: application/json
+
+###
+
+### Expected Results:
+# 1. /api/health → 200 OK with service status
+# 2. /sanctum/csrf-cookie → 204 No Content (sets XSRF-TOKEN cookie)
+# 3. /login → 204 No Content (authenticates user)
+# 4. /api/me → 200 OK with user data
+# 5. /api/requests → 200 OK with requests list
+# 6. /logout → 204 No Content (clears session)
+# 7. /api/me → 401 Unauthorized (after logout)
+# 8. OPTIONS /api/requests → 200 OK with CORS headers
+# 9. /admin → 302 Redirect to login or 200 OK (if admin)
+# 10. /api/health/database → 200 OK with DB status
+
+### Troubleshooting:
+# - If CSRF fails: Ensure XSRF-TOKEN cookie is set and included in X-XSRF-TOKEN header
+# - If login fails: Check credentials and ensure user exists in database
+# - If CORS fails: Verify config/cors.php settings
+# - If 500 errors: Check Laravel logs in storage/logs/
+# - If database errors: Run `php artisan migrate` and `php artisan db:seed`

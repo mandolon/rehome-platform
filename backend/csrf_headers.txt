@@ -1,0 +1,11 @@
+HTTP/1.1 204 No Content
+Host: localhost:9000
+Connection: close
+X-Powered-By: PHP/8.4.12
+Cache-Control: no-cache, private
+Date: Wed, 24 Sep 2025 02:05:27 GMT
+Access-Control-Allow-Origin: http://localhost:3000
+Access-Control-Allow-Credentials: true
+Set-Cookie: XSRF-TOKEN=eyJpdiI6Ikk2ZjE0TTVNcVpIYzBmMVpoSXE5NXc9PSIsInZhbHVlIjoiTU9DMDJIeXZzaFN4eGdQbGVqanRvNDl3dERoc1JONDBrOUwveEQwN2FscEk3ZVlqZC9TVCsxWUZYWklJN01BNjBNTWRuS3dna2ZrcEVocWxqY0pFV3lYdmxXaW5ncFdUSmtQUUlRcGdlMGw5SWlwU3ROSmpwQ3Zmd0VRUjdLMDgiLCJtYWMiOiI0MWVlYTM0Yzk5ZjM3MGFiZmRkOGU4MDljM2M3NjZjMWU0YzJkMjYyODJmY2IzZGYxYThmNWJiMTZjODRjMThiIiwidGFnIjoiIn0%3D; expires=Wed, 24 Sep 2025 04:05:27 GMT; Max-Age=7200; path=/; domain=localhost; samesite=lax
+Set-Cookie: rehome-platform-session=eyJpdiI6InFkVWxWUVc5dWpJbDhpZURtNVU4VWc9PSIsInZhbHVlIjoiQTRucHFTYVRaYXUreDVjOTlSY2hVSDNlZncrZldIZDRHek00KzQyc05vYUw5YVB6QUdHd3NiK2UwTzlaMmtIanBkeTZBSTR4cUZGSld2UVdSejkyVEZBZjNXd3BEOE1zeFN1VlVLYWRvTVFDNlkxTWM1dVl3a252eVV2eXJGR2IiLCJtYWMiOiJkMDhlNWMwM2E0NzExMDI3Y2ZjMjcxNzM0M2YxMTRmNTZhNTI2ODFmMDQxZDFjM2RiN2Q0OGM3YTg2NTZmODk1IiwidGFnIjoiIn0%3D; expires=Wed, 24 Sep 2025 04:05:27 GMT; Max-Age=7200; path=/; domain=localhost; httponly; samesite=lax
+
