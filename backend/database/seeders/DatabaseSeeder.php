@@ -40,7 +40,8 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Project Manager',
                 'password' => Hash::make($testPassword),
-                'role' => 'project_manager',
+                'role' => 'team',
+                'team_type' => 'architect',
                 'email_verified_at' => now(),
             ]
         );
@@ -50,7 +51,8 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Team Member 1',
                 'password' => Hash::make($testPassword),
-                'role' => 'team_member',
+                'role' => 'team',
+                'team_type' => 'engineer',
                 'email_verified_at' => now(),
             ]
         );
@@ -60,7 +62,8 @@ class DatabaseSeeder extends Seeder
             [
                 'name' => 'Team Member 2',
                 'password' => Hash::make($testPassword),
-                'role' => 'team_member',
+                'role' => 'team',
+                'team_type' => 'designer',
                 'email_verified_at' => now(),
             ]
         );

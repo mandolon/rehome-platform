@@ -11,6 +11,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:ui:requests": "vitest run src/app/requests/**/__tests__/*.test.tsx",
+    "test:run": "vitest run",
+    "test:ci": "vitest run --reporter=dot --silent",
+    "test:requests": "vitest run src/app/requests/**/__tests__/*.test.tsx",
     "format": "prettier --write .",
     "health:api": "node -e \"console.log('API Health Check URL: http://127.0.0.1:9000'); console.log('Use snippets/health-checks.http in VS Code for full smoke tests');\"",
     "csrf:init": "node -e \"console.log('CSRF Init: Use GET /sanctum/csrf-cookie before login'); console.log('See snippets/health-checks.http for full flow');\""
