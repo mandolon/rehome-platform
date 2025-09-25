@@ -28,7 +28,8 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
-            'role' => fake()->randomElement(['admin', 'project_manager', 'team_member', 'client']),
+            'role' => fake()->randomElement(['admin', 'team', 'client']),
+            'team_type' => fake()->optional()->randomElement(['architect', 'engineer', 'designer', 'consultant']),
             'profile' => [
                 'bio' => fake()->sentence(),
                 'phone' => fake()->phoneNumber(),
@@ -64,7 +65,7 @@ class UserFactory extends Factory
     public function projectManager(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => 'project_manager',
+            'role' => 'team',
         ]);
     }
 
@@ -74,7 +75,7 @@ class UserFactory extends Factory
     public function teamMember(): static
     {
         return $this->state(fn (array $attributes) => [
-            'role' => 'team_member',
+            'role' => 'team',
         ]);
     }
 
@@ -85,6 +86,17 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'role' => 'client',
+        ]);
+    }
+
+    /**
+     * Create a team user with specific team type.
+     */
+    public function team(string $teamType = null): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'team',
+            'team_type' => $teamType ?? fake()->randomElement(['architect', 'engineer', 'designer', 'consultant']),
         ]);
     }
 }

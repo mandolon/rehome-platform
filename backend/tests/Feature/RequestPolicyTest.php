@@ -119,7 +119,7 @@ final class RequestPolicyTest extends TestCase
     public function assignee_cannot_assign_request(): void
     {
         $creator = User::factory()->teamMember()->create();
-        $assignee = User::factory()->teamMember()->create();
+        $assignee = User::factory()->client()->create(); // Client assignee cannot assign
         $req = Request::factory()->create([
             'creator_id' => $creator->id,
             'assignee_id' => $assignee->id

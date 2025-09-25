@@ -27,7 +27,7 @@ describe('RoleGate Component', () => {
     })
 
     const { getByText } = render(
-      <RoleGate allow={['admin', 'project_manager']}>
+      <RoleGate allow={['admin', 'team']}>
         <div>Admin Content</div>
       </RoleGate>
     )
@@ -53,7 +53,7 @@ describe('RoleGate Component', () => {
     })
 
     const { queryByText } = render(
-      <RoleGate allow={['admin', 'project_manager']}>
+      <RoleGate allow={['admin', 'team']}>
         <div>Admin Content</div>
       </RoleGate>
     )
