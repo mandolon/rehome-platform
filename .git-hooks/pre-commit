@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+files=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.php$' || true)
+[ -z "$files" ] && exit 0
+# Fail on UTF-8 BOM
+if grep -Il $'\xEF\xBB\xBF' $files >/dev/null 2>&1; then
+  echo "ERROR: PHP files must be BOM-free."; exit 1
+fi
+# Basic PHPUnit namespace check (Tests\)
+bad=$(grep -L "^namespace Tests\\" $files || true)
+if [ -n "$bad" ]; then
+  echo "ERROR: Missing 'namespace Tests\\' in:"; echo "$bad"; exit 1
+fi

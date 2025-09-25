@@ -13,6 +13,11 @@ Content-Type: application/json
 
 ###
 
+# Frontend quick check (dev server expected on 3000)
+GET http://localhost:3000
+
+###
+
 ### CSRF Cookie - Initialize session for SPA
 # Should return 204 and set XSRF-TOKEN cookie
 GET {{BASE_URL}}/sanctum/csrf-cookie
