@@ -1,12 +1,12 @@
 # Rehome Platform
-
-Multi-role collaborative platform for architecture and construction teams. Features project management, task tracking, team collaboration, and client portals with real-time updates.
+ [![Backend CI](https://github.com/alope/rehome-platform/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/alope/rehome-platform/actions/workflows/backend-ci.yml)
+ 
+ Multi-role collaborative platform for architecture and construction teams. Features project management, task tracking, team collaboration, and client portals with real-time updates.
 
 ## Tech Stack
 - **Backend**: Laravel 11 + PostgreSQL
 - **Frontend**: Next.js 14 + React
 - **Authentication**: Laravel Sanctum
-- **Real-time**: Laravel Broadcasting
 - **UI**: Tailwind CSS + shadcn/ui
 - **Code Review**: CodeRabbit AI
 - **CI/CD**: GitHub Actions

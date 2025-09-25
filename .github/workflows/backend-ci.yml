@@ -1,0 +1,78 @@
+name: Backend CI (Laravel)
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: mbstring, intl, pdo, sqlite, bcmath, ctype, fileinfo, json, tokenizer, xml, dom
+          coverage: none
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.composer/cache/files
+            backend/vendor
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: |
+            composer-${{ runner.os }}-
+
+      - name: Install Composer deps
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: App key & CI env
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          # Force sqlite in CI
+          sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          sed -i 's/^DB_HOST=.*/# DB_HOST=127.0.0.1/' .env
+          sed -i 's/^DB_PORT=.*/# DB_PORT=3306/' .env
+          sed -i 's/^DB_DATABASE=.*/DB_DATABASE=/' .env
+          sed -i 's/^DB_USERNAME=.*/DB_USERNAME=/' .env
+          sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=/' .env
+          printf "%s\n" "" > database/database.sqlite
+          php artisan config:clear
+
+      - name: Migrate (fresh) + Seed (optional)
+        run: php artisan migrate:fresh --seed -n
+
+      - name: Run PHPUnit
+        run: |
+          mkdir -p storage/logs
+          ./vendor/bin/phpunit --testdox --log-junit ./junit.xml
+
+      - name: Upload junit.xml
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phpunit-junit
+          path: backend/junit.xml
+
+      - name: Upload Laravel logs (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laravel-logs
+          path: backend/storage/logs
