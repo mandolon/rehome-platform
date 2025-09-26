@@ -1,10 +1,22 @@
+# Storybook Implementation (v8.6.14)
+
+- Stories live under `src/**/*.stories.@(tsx|mdx)`
+- Config:
+  - `.storybook/main.ts`  (addons: essentials, a11y, themes, docs, interactions; `viteFinal`  alias `@ → src` )
+  - `.storybook/preview.ts`  imports `src/styles/globals.css`
+  - `.storybook/tsconfig.json`  includes `src/**`
+- Vite v6, ESLint v8.57 aligned for peer compatibility
+- Scripts:
+  - `pnpm sb`  (storybook dev)
+  - `pnpm storybook:ci`  (storybook build)
+  - `pnpm check`  (lint + test + storybook build)
+
 # Storybook UX Polish Implementation Summary
 
-## ✅ Completed Features
+## Completed Features
 
 ### 1. Global Toolbar Controls (.storybook/preview.ts)
 - **Role Toolbar**: Added dropdown with admin/manager/contributor/viewer roles
-- **Theme Toolbar**: Added light/dark theme toggle
 - **Global Types**: Configured with icons, dynamic titles, and default values
 - **Decorators**: Created withTheme and withRole decorators for story context
 

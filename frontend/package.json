@@ -14,6 +14,7 @@
     "test": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vitest --run --reporter=verbose",
     "sb": "storybook dev -p 6006",
     "sb:build": "storybook build",
+    "storybook:ci": "storybook build",
     "format": "prettier --write .",
     "health:api": "node -e \"console.log('API Health Check URL: http://127.0.0.1:9000'); console.log('Use snippets/health-checks.http in VS Code for full smoke tests');\"",
     "csrf:init": "node -e \"console.log('CSRF Init: Use GET /sanctum/csrf-cookie before login'); console.log('See snippets/health-checks.http for full flow');\"",

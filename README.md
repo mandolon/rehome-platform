@@ -10,7 +10,16 @@
 
   ## Project Structure
 
-  ## DIY Local CI
-  - VS Code: Run Task "DIY: Verify All" (Ctrl/Cmd+Shift+B).
-  - CLI: `scripts/verify-all.sh` (macOS/Linux) or `scripts/verify-all.ps1` (Windows).
-  - Optional: `git config core.hooksPath .githooks` to run backend tests before every commit.
+## DIY Local CI
+- VS Code: Run Task "DIY: Verify All" (Ctrl/Cmd+Shift+B).
+- CLI: `scripts/verify-all.sh` (macOS/Linux) or `scripts/verify-all.ps1` (Windows).
+- Optional: `git config core.hooksPath .githooks` to run backend tests before every commit.
+
+## Devbox Reset (Windows, nvm-windows)
+
+If Node/pnpm/Corepack get tangled (PATH issues, `pnpm : not recognized`, `ERR_INVALID_THIS`, etc.), run our reset script:
+
+```powershell
+# From repo root
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Reset-NodePnpm.ps1
+```
