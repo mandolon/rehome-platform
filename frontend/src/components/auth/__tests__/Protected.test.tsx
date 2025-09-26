@@ -1,6 +1,7 @@
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import { makeUser } from '@/test/utils/userFactory';
 import { useRouter } from 'next/navigation'
 import { Protected } from '@/components/auth/Protected'
 import { useAuth } from '@/lib/auth/AuthProvider'
@@ -62,14 +63,14 @@ describe('Protected Component', () => {
 
   it('should render children when authenticated', () => {
     mockUseAuth.mockReturnValue({
-      user: {
+      user: makeUser({
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        role: 'ADMIN',
+        role: 'admin', // Changed to lowercase
         created_at: '2023-01-01',
         updated_at: '2023-01-01',
-      },
+      }),
       loading: false,
       login: vi.fn(),
       register: vi.fn(),

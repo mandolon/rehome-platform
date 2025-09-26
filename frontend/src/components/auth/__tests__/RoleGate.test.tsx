@@ -5,7 +5,7 @@ import { RoleGate } from '@/components/auth/RoleGate'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { vi } from 'vitest'
 
-// Mock the auth hook
+// Mock the auth hook module
 vi.mock('@/lib/auth/AuthProvider')
 const mockUseAuth = vi.mocked(useAuth)
 
@@ -16,7 +16,7 @@ describe('RoleGate Component (area-based)', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        role: 'ADMIN',
+        role: 'admin',
         created_at: '2023-01-01',
         updated_at: '2023-01-01',
       },
@@ -42,7 +42,7 @@ describe('RoleGate Component (area-based)', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        role: 'CLIENT',
+        role: 'client',
         created_at: '2023-01-01',
         updated_at: '2023-01-01',
       },
@@ -68,7 +68,7 @@ describe('RoleGate Component (area-based)', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        role: 'CLIENT',
+        role: 'client',
         created_at: '2023-01-01',
         updated_at: '2023-01-01',
       },

@@ -74,7 +74,7 @@ describe('Sanctum Authentication Flow', () => {
 
   it('should handle CSRF token properly', () => {
     // Intercept API calls to verify CSRF token is sent
-    cy.intercept('POST', `${apiUrl}/api/auth/login`).as('loginRequest')
+    cy.intercept('POST', `${apiUrl}/api/app/auth/login`).as('loginRequest')
     
     cy.visit('/login')
     cy.get('input[type="email"]').type('admin@rehome.com')
@@ -97,7 +97,7 @@ describe('Sanctum Authentication Flow', () => {
     cy.url().should('include', '/dashboard')
 
     // Simulate session expiration by clearing server-side session
-    cy.request('POST', `${apiUrl}/api/test/expire-session`)
+    cy.request('POST', `${apiUrl}/api/app/test/expire-session`)
     
     // Try to access a protected endpoint
     cy.visit('/projects')

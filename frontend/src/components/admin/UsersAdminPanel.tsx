@@ -13,7 +13,9 @@ export interface AdminUser {
 export function UsersAdminPanel() {
   const [users, setUsers] = useState<AdminUser[]>([
     { id: 1, name: 'Alice Admin', email: 'alice@example.com', role: 'admin' },
-    { id: 2, name: 'Mark PM', email: 'mark@example.com', role: 'project_manager' },
+    { id: 2, name: 'Tina Team', email: 'tina@example.com', role: 'team' },
+    { id: 3, name: 'Carlos Consultant', email: 'carlos@example.com', role: 'consultant' },
+    { id: 4, name: 'Clara Client', email: 'clara@example.com', role: 'client' },
   ])
   const [selectedId, setSelectedId] = useState<number | null>(1)
   const [form, setForm] = useState<Partial<AdminUser>>({})
@@ -26,7 +28,7 @@ export function UsersAdminPanel() {
       id,
       name: form.name?.toString() || 'New User',
       email: form.email?.toString() || `user${id}@example.com`,
-      role: form.role?.toString() || 'team_member',
+      role: form.role?.toString() || 'team',
     }
     setUsers(prev => [...prev, newUser])
     setSelectedId(id)
@@ -93,8 +95,9 @@ export function UsersAdminPanel() {
                 <select className="border rounded p-2" value={form.role?.toString() || ''} onChange={e => setForm(f => ({ ...f, role: e.target.value }))}>
                   <option value="">Select role</option>
                   <option value="admin">Admin</option>
-                  <option value="project_manager">Project Manager</option>
-                  <option value="team_member">Team Member</option>
+                  <option value="team">Team</option>
+                  <option value="consultant">Consultant</option>
+                  <option value="client">Client</option>
                 </select>
               </label>
               <div className="col-span-2 flex gap-2 mt-2">

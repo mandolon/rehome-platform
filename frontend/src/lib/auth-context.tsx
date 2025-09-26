@@ -1,4 +1,41 @@
-'use client'
+import { useMemo } from 'react';
+import { useAuth } from '@/lib/auth/AuthProvider';
+import type { Role } from '@/lib/types';
+
+type RoleInput = Role | string | Array<Role | string>;
+
+function normalizeRole(input: unknown): Role {
+  const v = String(input ?? '').toLowerCase();
+  if (v === 'admin') return 'admin';
+  if (v === 'team') return 'team';
+  if (v === 'consultant') return 'consultant';
+  if (v === 'client') return 'client';
+  return 'client';
+}
+
+export function useRole() {
+  const { user } = useAuth();
+
+  const role: Role = useMemo(
+    () => normalizeRole((user as any)?.role),
+    [user]
+  );
+
+  function hasRole(input: RoleInput): boolean {
+    const wants = (Array.isArray(input) ? input : [input]).map((w) =>
+      normalizeRole(w)
+    );
+    return wants.includes(role);
+  }
+
+  function isAdmin(): boolean {
+    return role === 'admin';
+  }
+
+  return { user, role, hasRole, isAdmin };
+}
+
+export default useRole;
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -60,27 +97,91 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await authLogout()
-  
-  const value: AuthContextType = {
-    const roles = Array.isArray(role) ? role : [role]
-    
-    // Map new roles to legacy format for compatibility
-    const roleMap: Record<string, string> = {
-      'ADMIN': 'admin',
-      'TEAM': 'user',
-      'CONSULTANT': 'user', 
-      'CLIENT': 'user'
+    } catch (error) {
+      console.warn('Logout request failed, clearing local state anyway')
+    } finally {
+      setUser(null)
+      router.push('/login')
     }
-    
-    const normalizedRole = roleMap[user.role] || 'user'
-    return roles.includes(normalizedRole)
+  }
+
+  const refreshUser = async () => {
+    try {
+      const user = await getMe()
+      setUser(user)
+    } catch (error) {
+      // If refresh fails, user is no longer authenticated
+      setUser(null)
+      throw error
+    }
+  }
+
+  const value = {
+    user,
+    loading,
+    login,
+    logout,
+    refreshUser,
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
+
+// Higher-order component for protecting routes
+export function withAuth<P extends object>(Component: React.ComponentType<P>) {
+  return function AuthenticatedComponent(props: P) {
+    const { user, loading } = useAuth()
+    const router = useRouter()
+
+    useEffect(() => {
+      if (!loading && !user) {
+        router.push('/login')
+      }
+    }, [user, loading, router])
+
+    if (loading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-lg">Loading...</div>
+        </div>
+      )
+    }
+
+    if (!user) {
+      return null // Will redirect to login
+    }
+
+    return <Component {...props} />
+  }
+}
+
+// Role-based access control
+export function useRole() {
+  const { user } = useAuth()
+  
+  const hasRole = (role: string | string[]) => {
+    if (!user) return false
+    const roles = Array.isArray(role) ? role : [role]
+    return roles.includes(user.role)
   }
 
   const isAdmin = () => hasRole('admin')
+  const isProjectManager = () => hasRole(['admin', 'project_manager'])
+  const isTeamMember = () => hasRole(['admin', 'project_manager', 'team_member'])
 
   return {
     user,
     hasRole,
     isAdmin,
+    isProjectManager,
+    isTeamMember,
   }
 }

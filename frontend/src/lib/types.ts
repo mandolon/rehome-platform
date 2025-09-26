@@ -1,5 +1,5 @@
 // User roles
-export type Role = 'ADMIN' | 'TEAM' | 'CONSULTANT' | 'CLIENT'
+export type Role = 'admin' | 'team' | 'consultant' | 'client'
 
 // Project status
 export type ProjectStatus = 'planned' | 'active' | 'paused' | 'completed'
