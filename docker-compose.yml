@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: rehome-db
+    environment:
+      POSTGRES_DB: rehome_platform
+      POSTGRES_USER: rehome_user
+      POSTGRES_PASSWORD: rehome_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rehome_user -d rehome_platform"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rehome-network
+
+  # Laravel API Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: rehome-api
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=rehome_platform
+      - DB_USERNAME=rehome_user
+      - DB_PASSWORD=rehome_password
+    volumes:
+      - ./backend:/var/www/html
+      - ./storage:/var/www/html/storage
+    ports:
+      - "9000:9000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rehome-network
+    command: php artisan serve --host=0.0.0.0 --port=9000
+
+  # Next.js Web Service
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: rehome-web
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:9000/api
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - rehome-network
+    command: pnpm dev -p 3000
+
+  # Redis Queue (Optional)
+  queue:
+    image: redis:7-alpine
+    container_name: rehome-queue
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rehome-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  rehome-network:
+    driver: bridge
