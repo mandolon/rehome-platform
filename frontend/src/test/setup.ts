@@ -6,7 +6,7 @@ import { cleanup } from '@testing-library/react';
 afterEach(() => cleanup());
 
 // MSW setup for tests
-import { server } from './msw/server';
+import { server } from './msw';
 
 beforeAll(() => {
   server.listen({ onUnhandledRequest: 'bypass' });

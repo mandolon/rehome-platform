@@ -6,8 +6,12 @@ const config: Config = {
     './src/**/*.{js,ts,jsx,tsx}',
     './.storybook/**/*.{js,ts,jsx,tsx,mdx}'
   ],
-  theme: { 
-    extend: {} 
+  theme: {
+    extend: {
+      colors: {
+        ring: 'hsl(var(--ring))',
+      },
+    },
   },
   plugins: [require('tailwindcss-animate')]
 };
