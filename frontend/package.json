@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vitest --run --reporter=verbose",
     "sb": "storybook dev -p 6006",
     "sb:build": "storybook build",
