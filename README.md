@@ -6,60 +6,169 @@ Rehome is the all-in-one operating system for residential construction, connecti
 
 Multi-role collaborative platform for architecture and construction teams. Features project management, task tracking, team collaboration, and client portals with real-time updates.
 
-## Authorization (Simple Model)
+## Authorization (Simplified RBAC)
 
 **Principle:** Everyone can **read, write, edit, comment, upload**.  
 **Roles only decide _where_ you act**, not _what_ you can do.
 
-- **Roles:** `admin | manager | contributor | viewer`
+- **Roles:** `ADMIN | TEAM | CONSULTANT | CLIENT`
 - **Areas:**
-  - `admin` → Admin (Filament) at `/admin/*`
-  - `manager / contributor / viewer` → SPA at `/app/*` (API under `/api/app/*`)
+  - `ADMIN` → Admin (Filament) at `/admin/*`
+  - `TEAM / CONSULTANT / CLIENT` → SPA at `/api/app/*`
 
 **Effective rule =** (Role allows area) **AND** (User is a member of the workspace/project).
 
 We **do not** use request-level roles (Manager/Contributor/Viewer/Creator) or per-action matrices.
 
-### Rollout Plan (Safe)
+### Cursor Runbook: RBAC Implementation Steps
 
-1. **Feature flag:** `backend/.env` → `SIMPLE_RBAC=false` (default OFF).
-2. **Add guarded code (no behavior change when flag is OFF):**
-   - `EnsureRole` middleware (role check)
-   - `ScopeWorkspace` middleware (resolve & verify membership, bind `currentWorkspace`)
-   - `BaseScopedPolicy` (CRUD allowed if in workspace; `admin` bypass)
-3. **Routes:**
-   - `/admin/*` → `auth` + `role:admin`
-   - `/api/app/*` → `auth:sanctum` + `role:manager,contributor,viewer` + `scope.workspace`
-4. **Tests (add, don't remove yet):**
-   - `AreaAccessTest`: admin allowed to `/admin/*`, others 403
-   - `WorkspaceScopeTest`: member can CRUD under `/api/app/*`, non-member 403
-5. **Staging:** flip `SIMPLE_RBAC=true`, smoke test.
-6. **Cleanup (second PR):** remove old request-level policies/tests.
-
-### Files Touched (monorepo-safe paths)
-
-- `backend/app/Http/Middleware/EnsureRole.php`
-- `backend/app/Http/Middleware/ScopeWorkspace.php`
-- `backend/app/Policies/BaseScopedPolicy.php`
-- `backend/bootstrap/app.php` (middleware aliases)
-- `backend/routes/api.php`
-- `backend/tests/Feature/AreaAccessTest.php`
-- `backend/tests/Feature/WorkspaceScopeTest.php`
-
-### Commands
-
+**1. Feature Flag Setup**
 ```bash
-git checkout -b chore/simpler-rbac-safe-migrate
-git push -u origin chore/simpler-rbac-safe-migrate
-
-# add flag (monorepo: backend/.env)
-echo "SIMPLE_RBAC=false" >> backend/.env
-
-# install & run tests (flag off, no changes expected)
 cd backend
-php composer.phar install --no-interaction --prefer-dist
-php artisan test
+echo "SIMPLE_RBAC=false" >> .env
 ```
+
+**2. Configuration**
+```php
+// config/rbac.php
+return [
+    'enabled' => (bool) env('SIMPLE_RBAC', false),
+    'areas' => [
+        'admin' => ['ADMIN'],
+        'spa'   => ['TEAM','CONSULTANT','CLIENT'],
+    ],
+];
+```
+
+**3. Middleware Creation**
+```php
+// app/Http/Middleware/EnsureRole.php
+class EnsureRole {
+    public function handle(Request $request, Closure $next, ...$roles) {
+        if (!config('rbac.enabled')) return $next($request);
+        $user = $request->user();
+        if (!$user) abort(401);
+        $role = strtoupper($user->role ?? '');
+        $allowed = $roles ?: $this->allowedRoles;
+        if (!in_array($role, array_map('strtoupper', $allowed), true)) {
+            abort(403);
+        }
+        return $next($request);
+    }
+}
+
+// app/Http/Middleware/ScopeWorkspace.php
+class ScopeWorkspace {
+    public function handle(Request $request, Closure $next) {
+        if (!config('rbac.enabled')) return $next($request);
+        $workspaceId = $request->route('workspace') ?? $request->header('X-Workspace-Id');
+        abort_if(!$workspaceId, 400, 'Workspace required');
+        $user = $request->user();
+        $isMember = $user->workspaces()->whereKey($workspaceId)->exists();
+        abort_if(!$isMember, 403);
+        app()->instance('currentWorkspaceId', $workspaceId);
+        return $next($request);
+    }
+}
+```
+
+**4. Policy Base**
+```php
+// app/Policies/BaseScopedPolicy.php
+abstract class BaseScopedPolicy {
+    public function before(User $user, string $ability): ?bool {
+        if (!config('rbac.enabled')) return null;
+        return null; // Defer to workspace membership checks
+    }
+    protected function isMember(User $user, $workspaceId): bool {
+        return $user->workspaces()->whereKey($workspaceId)->exists();
+    }
+}
+```
+
+**5. Route Wiring**
+```php
+// routes/web.php (Admin only)
+Route::middleware(['auth', 'ensureRole:ADMIN'])
+    ->prefix('admin')
+    ->group(function () {
+        Route::get('/tasks', fn() => 'admin tasks');
+        Route::get('/dashboard', fn() => 'admin dashboard');
+    });
+
+// routes/api.php (SPA with workspace scoping)
+Route::middleware(['auth:sanctum', 'ensureRole:TEAM,CONSULTANT,CLIENT', 'scopeWorkspace'])
+    ->prefix('api/app')
+    ->group(function () {
+        Route::get('/workspaces/{workspace}/projects', function ($workspace) {
+            return response()->json(['workspace' => $workspace, 'projects' => []]);
+        });
+        // ... other SPA routes
+    });
+```
+
+**6. Middleware Registration**
+```php
+// app/Providers/RouteServiceProvider.php
+public function boot(): void {
+    $router = $this->app['router'];
+    $router->aliasMiddleware('ensureRole', \App\Http\Middleware\EnsureRole::class);
+    $router->aliasMiddleware('scopeWorkspace', \App\Http\Middleware\ScopeWorkspace::class);
+    // ... rest of boot method
+}
+```
+
+**7. User Model Updates**
+```php
+// app/Models/User.php
+public function workspaces(): BelongsToMany {
+    return $this->belongsToMany(Workspace::class);
+}
+
+public function isRole(string $role): bool {
+    return strtoupper($this->role ?? '') === strtoupper($role);
+}
+```
+
+**8. Test Suite**
+```php
+// tests/Feature/RbacWiringTest.php
+class RbacWiringTest extends TestCase {
+    protected function setUp(): void {
+        parent::setUp();
+        config(['rbac.enabled' => true]);
+    }
+    
+    public function test_blocks_non_admin_from_admin_routes() {
+        $user = User::factory()->create(['role' => 'TEAM']);
+        Sanctum::actingAs($user);
+        $this->get('/admin/tasks')->assertForbidden();
+    }
+    
+    public function test_allows_team_in_spa_when_member() {
+        $user = User::factory()->create(['role' => 'TEAM']);
+        $workspace = Workspace::factory()->create();
+        $user->workspaces()->attach($workspace->id);
+        Sanctum::actingAs($user);
+        $this->get("/api/app/workspaces/{$workspace->id}/projects")->assertOk();
+    }
+    // ... additional test cases
+}
+```
+
+**9. Validation Commands**
+```bash
+cd backend
+php artisan test --filter="RbacWiringTest"
+php artisan route:list | grep -E "(admin|api/app)"
+```
+
+**10. Rollout Process**
+- Deploy with `SIMPLE_RBAC=false` (default)
+- Test in staging with `SIMPLE_RBAC=true`
+- Monitor for issues
+- Enable in production when ready
+- Remove legacy RBAC in follow-up PR
 
 ## 🤖 Gates & Agents
 
@@ -122,16 +231,6 @@ It connects the full journey from **design → permits → build**, bringing tog
 - **CI/CD**: GitHub Actions (backend-ci, frontend-ci)
 - **Storybook**: UI component library for frontend
 
-## Roles & Access
-Everyone can read, write, edit, upload, and comment.  
-Authorization is based on **where** actions happen:
-
-- **Admin** → Full access inside `/admin` (Filament).
-- **Team** → All functions in workspace (`/api/app`).
-- **Consultant** → Limited collaboration in workspace.
-- **Client** → Track, upload, share, comment in workspace.
-
-Authorization = `(role allows area)` **AND** `(user is member of workspace/project)`.
 
 ## Development
 
