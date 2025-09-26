@@ -1,22 +1,26 @@
 # Rehome Platform
-
-Multi-role collaborative platform for architecture and construction teams. Features project management, task tracking, team collaboration, and client portals with real-time updates.
+  [![Backend CI](https://github.com/<ORG_OR_USER>/rehome-platform/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/<ORG_OR_USER>/rehome-platform/actions/workflows/backend-ci.yml)
+  [![Frontend CI](https://github.com/mandolon/rehome-platform/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/mandolon/rehome-platform/actions/workflows/frontend-ci.yml)
+  
+  Multi-role collaborative platform for architecture and construction teams. Features project management, task tracking, team collaboration, and client portals with real-time updates.
 
 ## Tech Stack
 - **Backend**: Laravel 11 + PostgreSQL
-- **Frontend**: Next.js 14 + React
-- **Authentication**: Laravel Sanctum
-- **Real-time**: Laravel Broadcasting
 - **UI**: Tailwind CSS + shadcn/ui
-- **Code Review**: CodeRabbit AI
 - **CI/CD**: GitHub Actions
 
-## 🤖 Automated Code Reviews
+  ## Project Structure
 
-This repository uses **CodeRabbit AI** for automated code reviews on all pull requests. 
+## DIY Local CI
+- VS Code: Run Task "DIY: Verify All" (Ctrl/Cmd+Shift+B).
+- CLI: `scripts/verify-all.sh` (macOS/Linux) or `scripts/verify-all.ps1` (Windows).
+- Optional: `git config core.hooksPath .githooks` to run backend tests before every commit.
 
-**Setup Required**: Install the [CodeRabbit GitHub App](https://github.com/marketplace/coderabbit-ai) to enable AI reviews.
+## Devbox Reset (Windows, nvm-windows)
 
-See [`docs/CODERABBIT-SETUP.md`](docs/CODERABBIT-SETUP.md) for detailed setup instructions.
+If Node/pnpm/Corepack get tangled (PATH issues, `pnpm : not recognized`, `ERR_INVALID_THIS`, etc.), run our reset script:
 
-## Project Structure
+```powershell
+# From repo root
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\scripts\Reset-NodePnpm.ps1
+```

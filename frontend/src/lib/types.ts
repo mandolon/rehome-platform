@@ -1,5 +1,8 @@
 // User roles
-export type Role = 'admin' | 'project_manager' | 'team_member' | 'client'
+export type Role = 'admin' | 'team' | 'client'
+
+// Team types
+export type TeamType = 'architect' | 'engineer' | 'designer' | 'consultant'
 
 // Project status
 export type ProjectStatus = 'planned' | 'active' | 'paused' | 'completed'
@@ -16,6 +19,7 @@ export interface User {
   name: string
   email: string
   role: Role
+  team_type?: TeamType
   avatar?: string
   created_at: string
   updated_at: string
