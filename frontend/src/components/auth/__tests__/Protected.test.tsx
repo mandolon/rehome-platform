@@ -66,7 +66,7 @@ describe('Protected Component', () => {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        role: 'admin',
+        role: 'ADMIN',
         created_at: '2023-01-01',
         updated_at: '2023-01-01',
       },

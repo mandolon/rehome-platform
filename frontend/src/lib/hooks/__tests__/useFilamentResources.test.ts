@@ -23,9 +23,7 @@ describe('useFilamentResources', () => {
       mockUseRole.mockReturnValue({
         user: { id: 1, name: 'Admin User', email: 'admin@test.com', role: 'admin' },
         hasRole: vi.fn((role) => role === 'admin'),
-        isAdmin: vi.fn(() => true),
-        isProjectManager: vi.fn(() => true),
-        isTeamMember: vi.fn(() => true)
+        isAdmin: vi.fn(() => true)
       })
     })
 
@@ -55,9 +53,7 @@ describe('useFilamentResources', () => {
       mockUseRole.mockReturnValue({
         user: { id: 2, name: 'Regular User', email: 'user@test.com', role: 'team_member' },
         hasRole: vi.fn((role) => role === 'team_member'),
-        isAdmin: vi.fn(() => false),
-        isProjectManager: vi.fn(() => false),
-        isTeamMember: vi.fn(() => true)
+        isAdmin: vi.fn(() => false)
       })
     })
 
@@ -84,9 +80,7 @@ describe('useFilamentResources', () => {
       mockUseRole.mockReturnValue({
         user: null,
         hasRole: vi.fn(() => false),
-        isAdmin: vi.fn(() => false),
-        isProjectManager: vi.fn(() => false),
-        isTeamMember: vi.fn(() => false)
+        isAdmin: vi.fn(() => false)
       })
     })
 
@@ -105,9 +99,7 @@ describe('useFilamentResources', () => {
       mockUseRole.mockReturnValue({
         user: { id: 1, name: 'Admin User', email: 'admin@test.com', role: 'admin' },
         hasRole: vi.fn((role) => role === 'admin'),
-        isAdmin: vi.fn(() => true),
-        isProjectManager: vi.fn(() => true),
-        isTeamMember: vi.fn(() => true)
+        isAdmin: vi.fn(() => true)
       })
     })
 

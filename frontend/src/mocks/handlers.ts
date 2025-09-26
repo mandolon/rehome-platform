@@ -1,30 +1,30 @@
 import { http, HttpResponse } from 'msw'
 
-const fakeUser = {
+const fakeAdmin = {
   id: 1,
   name: 'Demo Admin',
   email: 'admin@rehome.build',
-  role: 'admin' as const,
+  role: 'ADMIN' as const,
   email_verified_at: new Date().toISOString(),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 }
 
-const fakeManager = {
+const fakeTeam = {
   id: 2,
-  name: 'Demo Manager',
-  email: 'manager@rehome.build',
-  role: 'manager' as const,
+  name: 'Demo Team Member',
+  email: 'team@rehome.build',
+  role: 'TEAM' as const,
   email_verified_at: new Date().toISOString(),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 }
 
-const fakeEmployee = {
+const fakeClient = {
   id: 3,
-  name: 'Demo Employee',
-  email: 'employee@rehome.build',
-  role: 'employee' as const,
+  name: 'Demo Client',
+  email: 'client@rehome.build',
+  role: 'CLIENT' as const,
   email_verified_at: new Date().toISOString(),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
@@ -49,13 +49,13 @@ export const handlers = [
       console.log('MSW: Login attempt with email:', body.email)
 
       // Demo credentials
-      let user: typeof fakeUser | typeof fakeManager | typeof fakeEmployee = fakeEmployee
+      let user: typeof fakeAdmin | typeof fakeTeam | typeof fakeClient = fakeClient
       if (body.email === 'admin@rehome.build') {
-        user = fakeUser
-      } else if (body.email === 'manager@rehome.build') {
-        user = fakeManager
-      } else if (body.email === 'employee@rehome.build') {
-        user = fakeEmployee
+        user = fakeAdmin
+      } else if (body.email === 'team@rehome.build') {
+        user = fakeTeam
+      } else if (body.email === 'client@rehome.build') {
+        user = fakeClient
       }
 
       if (body.email && body.password) {
@@ -131,7 +131,7 @@ export const handlers = [
         id: 4,
         name: body.name,
         email: body.email,
-        role: 'employee' as const,
+        role: 'CLIENT' as const,
         email_verified_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -164,7 +164,7 @@ export const handlers = [
       console.log('MSW: Valid session found, returning user data')
       return HttpResponse.json(
         {
-          data: fakeUser,
+          data: fakeAdmin,
           message: 'User retrieved successfully',
         },
         { status: 200 }
@@ -235,3 +235,4 @@ export const handlers = [
     ]
     return HttpResponse.json({ data: mockTasks }, { status: 200 })
   }),
+]
