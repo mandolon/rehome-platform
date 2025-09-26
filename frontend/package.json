@@ -2,16 +2,20 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@8.0.0",
+  "packageManager": "pnpm@8.15.4",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "storybook:ci": "echo 'Storybook not configured yet, skipping build'"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
