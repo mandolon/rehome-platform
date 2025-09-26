@@ -11,17 +11,3 @@ export const parameters = {
     ] 
   }
 };
-
-export const globalTypes = {
-  theme: {
-    description: 'Theme',
-    defaultValue: 'light',
-    toolbar: { 
-      title: 'Theme', 
-      items: [
-        { value: 'light', title: 'Light' }, 
-        { value: 'dark', title: 'Dark' }
-      ] 
-    }
-  }
-};

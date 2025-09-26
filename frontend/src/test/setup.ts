@@ -1,23 +1,21 @@
-import '@testing-library/jest-dom'
-import 'whatwg-fetch'
-import { cleanup } from '@testing-library/react'
-import { server } from './msw'
-import { afterAll, afterEach, beforeAll, vi } from 'vitest'
+import '@testing-library/jest-dom';
+import { afterEach, beforeAll, afterAll } from 'vitest';
+import { cleanup } from '@testing-library/react';
 
-// Start MSW
+// Cleanup after each test
+afterEach(() => cleanup());
+
+// MSW setup for tests
+import { server } from './msw/server';
+
 beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'bypass' })
-})
+  server.listen({ onUnhandledRequest: 'bypass' });
+});
 
-// Reset handlers & clean React trees
 afterEach(() => {
-  server.resetHandlers()
-  cleanup()
-  vi.restoreAllMocks()
-  vi.clearAllTimers()
-})
+  server.resetHandlers();
+});
 
-// Close MSW so Vitest can exit
 afterAll(() => {
-  server.close()
-})
+  server.close();
+});
