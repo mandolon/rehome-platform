@@ -103,72 +103,74 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Storm-Guard.ps1
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
-.\scripts\Storm-Guard.ps1
+
+# Rehome Platform
+
+Rehome is the all-in-one operating system for residential construction.  
+It connects the full journey from **design → permits → build**, bringing together clients, teams, consultants, and admins in one place.
+
+## Vision
+- Give clients a clear portal to track progress, upload/share documents, and comment.
+- Provide teams with real-time tools to draft, review, and manage work.
+- Offer consultants a focused space to collaborate and comment.
+- Equip admins with full control via a dedicated `/admin` area.
+
+## Tech Stack
+- **Backend**: Laravel 11 + PostgreSQL
+- **Frontend**: Next.js 14 + React
+- **Auth**: Workspace-based roles (Admin, Team, Consultant, Client)
+- **CI/CD**: GitHub Actions (backend-ci, frontend-ci)
+- **Storybook**: UI component library for frontend
+
+## Roles & Access
+Everyone can read, write, edit, upload, and comment.  
+Authorization is based on **where** actions happen:
+
+- **Admin** → Full access inside `/admin` (Filament).
+- **Team** → All functions in workspace (`/api/app`).
+- **Consultant** → Limited collaboration in workspace.
+- **Client** → Track, upload, share, comment in workspace.
+
+Authorization = `(role allows area)` **AND** `(user is member of workspace/project)`.
+
+## Development
+
+### Backend (Cursor)
+```bash
+cd backend
+php composer.phar install --no-interaction --prefer-dist
+php artisan test
 ```
 
-### Write-Enabled Mode (One-Run)
+### Frontend (VS AI)
 
-For diagnostic runs that need to generate public artifacts:
-
-```powershell
-# Via VS Code Task: "Storm: Enable Writes (One-Run)"
-# Or manually:
-$env:STORM_ALLOW_WRITE="1"; .\scripts\Storm-Guard.ps1
+```bash
+cd frontend
+corepack enable && corepack prepare pnpm@8.15.4 --activate
+pnpm install --frozen-lockfile
+pnpm run -s typecheck
+pnpm run -s test -- --run
 ```
 
-### Diagnostic Outputs
+### UI / Storybook (Windsurf)
 
-- **Console**: Real-time diagnostic information
-- **Public Artifacts**: `frontend/gatef_artifacts_public/` (when write-enabled)
-- **Local Debug**: `frontend/.gatef_artifacts/` (debugging only, not needed for normal use)
-
-If execution is blocked:
-
-```powershell
-Unblock-File .\scripts\Storm-Guard.ps1
-.\scripts\Storm-Guard.ps1
+```bash
+cd frontend
+pnpm install --frozen-lockfile
+pnpm run -s storybook:ci
 ```
 
-**Notes:**
-- Junie provides diagnostics only - cannot modify code or configurations
-- The dirty git tree warning is expected (storybook artifacts, etc.) and will warn but continue
-- In VS Code, use Tasks: "Storm: Proof (Read-Only)" or "Storm: Enable Writes (One-Run)"
-- For PowerShell 7: `winget install --id Microsoft.PowerShell -e`
+### Diagnostics (Junie / PhpStorm)
 
-## Roadmap to Final Output
+Read-only inspections, log mirroring into `public-artifacts/`.
 
-### 1. **Skeleton Hierarchy (Admin-first)**
-- Define Roles (admin, team, consultant, client)
-- Entities: User, Workspace, Project, Task, Comment, Attachment, Activity
-- Relations + Stamps
+## Definition of Done
 
-### 2. **Backend Setup (Cursor)**
-- Migrations + Models with relations
-- Policies (admin full CRUD)
-- Filament Resources (User, Workspace, Project, Task, with RelationManagers)
-- Seed demo data (1 workspace, 1 project, 2 tasks, etc.)
-- Gate B (backend-ci) must pass
+* Requests UI supports optimistic comments + assign/status flows.
+* A11y lint passes.
+* Storybook builds when UI touched.
+* Vitest/MSW tests pass in CI.
+* Both backend-ci and frontend-ci green on PR.
+* Responsive shell works on desktop + iPad.
 
-### 3. **Frontend/SPA (VS AI & Windsurf)**
-- SPA for non-admin roles (team/consultant/client)
-- Admin panel styling + Storybook components
-- Task Board UI (group by status/project/assignee/date)
-- Project page tabs: Files, Tasks, Meta
-- Gate F (frontend-ci + Storybook) must pass
-
-### 4. **Diagnostics (Junie)**
-- Read-only mirroring of Gate B/F logs into `public-artifacts/`
-- Config inspections (package.json, Storybook, Vitest, workflows)
-- No code edits; diagnostics only
-
-### 5. **CI Gates Discipline**
-- Gate B: backend-ci (green required)
-- Gate F: frontend-ci (green required)
-- Junie: non-gating, diagnostics only
-
-### 6. **Final Output Definition**
-- Admin panel (Filament) fully functional with Projects/Tasks/Comments/Attachments/Activity
-- SPA roles routed correctly
-- Storybook build (v8.6.14) verified
-- Tests (Laravel + Vitest) green in CI
-- Roadmap milestones all checked off
+---
