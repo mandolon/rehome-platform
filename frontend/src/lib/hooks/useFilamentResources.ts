@@ -8,6 +8,7 @@ import { useRole } from '../auth-context'
  */
 export type FilamentResourceType = 
   | 'users'
+  | 'workspaces'
   | 'roles'
   | 'permissions' 
   | 'settings'
@@ -33,6 +34,11 @@ const FILAMENT_RESOURCE_CONFIG: Record<FilamentResourceType, {
     adminOnly: true,
     description: 'User management and profiles'
   },
+  workspaces: {
+    requiredRoles: ['admin'],
+    adminOnly: true,
+    description: 'Workspace management and settings'
+  },
   roles: {
     requiredRoles: ['admin'],
     adminOnly: true,
@@ -41,7 +47,7 @@ const FILAMENT_RESOURCE_CONFIG: Record<FilamentResourceType, {
   permissions: {
     requiredRoles: ['admin'],
     adminOnly: true,
-    description: 'System permissions configuration'
+    description: 'Permission management and access control'
   },
   settings: {
     requiredRoles: ['admin'],

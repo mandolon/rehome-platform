@@ -15,7 +15,9 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "format": "prettier --write .",
-    "storybook:ci": "echo 'Storybook not configured yet, skipping build'"
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "storybook:ci": "pnpm run -s build-storybook"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
@@ -37,6 +39,11 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@storybook/addon-a11y": "^8.6.14",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/addon-interactions": "^8.6.14",
+    "@storybook/react": "^8.6.14",
+    "@storybook/react-vite": "^8.6.14",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^20.19.17",
@@ -50,8 +57,10 @@
     "msw": "^2.11.3",
     "postcss": "^8",
     "prettier": "^3.6.2",
+    "storybook": "^8.6.14",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
+    "vite": "^5.4.8",
     "vitest": "^3.2.4"
   },
   "msw": {
