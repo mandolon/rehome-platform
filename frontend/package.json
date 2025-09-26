@@ -12,11 +12,11 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
+    "test": ".\\node_modules\\.bin\\vitest.cmd",
+    "test:ui": ".\\node_modules\\.bin\\vitest.cmd --ui",
     "format": "prettier --write .",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
+    "storybook": ".\\node_modules\\.bin\\storybook.cmd dev -p 6006",
+    "build-storybook": ".\\node_modules\\.bin\\storybook.cmd build",
     "storybook:ci": "pnpm run -s build-storybook"
   },
   "dependencies": {

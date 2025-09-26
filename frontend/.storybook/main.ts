@@ -16,6 +16,16 @@ const config: StorybookConfig = {
   docs: {
     autodocs: true
   },
+  viteFinal: async (config) => {
+    // Ensure alias to avoid importing Next.js client module in Storybook
+    config.resolve = config.resolve || {}
+    config.resolve.alias = {
+      ...(config.resolve.alias || {}),
+      '@/lib/auth-context': '/src/lib/auth-context.storybook.tsx',
+      '@': '/src'
+    }
+    return config
+  }
 }
 
 export default config

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Blocks commits from Storm unless explicitly enabled.
+if [ "$REHOME_AGENT" = "storm" ] || [ -n "$STORM_AGENT" ]; then
+  if [ "$STORM_ALLOW_WRITE" != "1" ]; then
+    echo "🔒 pre-commit: Storm is in READ-ONLY mode. Set STORM_ALLOW_WRITE=1 to commit." >&2
+    exit 1
+  fi
+fi
+exit 0
