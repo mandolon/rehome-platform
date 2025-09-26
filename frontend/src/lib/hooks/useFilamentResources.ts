@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useRole } from '../auth-context'
+import { useRole } from '@/lib/auth-context'
 
 /**
  * Filament resource types that may have visibility restrictions
