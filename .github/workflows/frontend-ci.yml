@@ -56,7 +56,7 @@ jobs:
       - name: Activate pnpm 8.15.4
         run: corepack prepare pnpm@8.15.4 --activate
 
-      - name: Install dependencies
+      - name: Install dependencies (frozen lockfile)
         working-directory: frontend
         run: pnpm install --frozen-lockfile
 
@@ -95,7 +95,7 @@ jobs:
       - name: Activate pnpm 8.15.4
         run: corepack prepare pnpm@8.15.4 --activate
 
-      - name: Install dependencies
+      - name: Install dependencies (frozen lockfile)
         working-directory: frontend
         run: pnpm install --frozen-lockfile
 
