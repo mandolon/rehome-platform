@@ -22,6 +22,7 @@ const config: StorybookConfig = {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
       '@/lib/auth-context': '/src/lib/auth-context.storybook.tsx',
+      'next/navigation': '/src/lib/__storybook__/next-navigation.ts',
       '@': '/src'
     }
     return config

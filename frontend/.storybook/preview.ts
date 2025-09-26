@@ -41,14 +41,15 @@ const preview: Preview = {
         user,
         loading: false,
         login: async () => {},
+        register: async () => {},
         logout: async () => {},
-        refreshUser: async () => {},
+        refreshMe: async () => {},
       }
 
-      return (
-        <AuthContext.Provider value={value as any}>
-          <Story />
-        </AuthContext.Provider>
+      return React.createElement(
+        AuthContext.Provider as any,
+        { value: value as any },
+        React.createElement(Story as any)
       )
     }
   ]
