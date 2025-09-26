@@ -1,8 +1,8 @@
 name: CI
 
-  on:
-    pull_request:
-      branches: [main]
+on:
+  pull_request:
+    branches: [main]
 
 jobs:
   backend:
@@ -25,6 +25,48 @@ jobs:
       
       - name: Setup Composer cache
         uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install PHP deps (no scripts)
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+
+      - name: Prepare app env
+        run: |
+          cp .env.example .env
+          php -r "file_exists('storage') || mkdir('storage', 0777, true);"
+          php -r "file_exists('bootstrap/cache') || mkdir('bootstrap/cache', 0777, true);"
+          php artisan key:generate
+
+      - name: Autoload optimize + package discovery
+        run: |
+          composer dump-autoload -o --no-scripts
+          php artisan package:discover
+
+      - name: Configure sqlite memory
+        run: |
+          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          echo "DB_DATABASE=:memory:" >> .env
+          php artisan config:clear
+
+      - name: Run migrations
+        run: php artisan migrate --no-interaction
+
+      - name: Test
+        run: php artisan test --colors=always
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
