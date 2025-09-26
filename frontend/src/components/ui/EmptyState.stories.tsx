@@ -41,7 +41,7 @@ export const WithoutAction: Story = {
   },
 };
 
-export const Settings: Story = {
+export const SettingsExample: Story = {
   args: {
     icon: <Settings className="h-12 w-12" />,
     title: 'Settings not configured',
