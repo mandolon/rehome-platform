@@ -1,8 +1,8 @@
 'use client'
 
+import React, { useEffect } from 'react'
 import { useAuth } from '@/lib/auth/AuthProvider'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface ProtectedProps {

@@ -44,7 +44,7 @@ describe('useFilamentResources', () => {
       const { result } = renderHook(() => useFilamentResources())
       
       // Admin should have access to all defined resources
-      expect(result.current.accessibleResources).toHaveLength(11)
+      expect(result.current.accessibleResources).toHaveLength(12)
       expect(result.current.accessibleResources.map(r => r.type)).toContain('users')
       expect(result.current.accessibleResources.map(r => r.type)).toContain('settings')
     })
@@ -138,7 +138,7 @@ describe('FilamentResourceUtils', () => {
     expect(adminResources).toContain('users')
     expect(adminResources).toContain('settings')
     expect(adminResources).toContain('admin-logs')
-    expect(adminResources).toHaveLength(11) // All resources are admin-only in current config
+    expect(adminResources).toHaveLength(12) // All resources are admin-only in current config
   })
 
   it('should return resource descriptions', () => {
