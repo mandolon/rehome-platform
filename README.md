@@ -1,275 +1,149 @@
-# Rehome Platform
+# Rehome • AI Prompts & Ops Handbook
 
-## Vision Statement
+This repo holds copy-paste prompts, guardrails, and runbooks for **Cursor, VS AI, Windsurf, and Junie (PhpStorm)** in the `rehome-platform` monorepo.
 
-Rehome is the all-in-one operating system for residential construction, connecting the full journey from design to permits to build. It gives clients a clear portal to track progress and share documents, provides teams with real-time tools to draft, review, and manage work, and offers consultants a focused space to comment and collaborate. Built on a unified backend (Laravel) and frontend (Next.js), Rehome combines smooth UX with automated AI support for tasks, tests, and CI. The result is a single, responsive platform where homeowners, architects, engineers, and planners can work together seamlessly — reducing friction, cutting delays, and making construction simple.
+## Purpose
+- Keep backend (Laravel) and frontend (Next.js) in sync.
+- Run AI tasks consistently with minimal churn.
+- Make sure backend-ci and frontend-ci stay green.
+- Use slim, CI-only gates.
 
-Multi-role collaborative platform for architecture and construction teams. Features project management, task tracking, team collaboration, and client portals with real-time updates.
+## Agents
+- **Cursor** → backend (`backend/**`, scripts, backend-ci).
+- **VS AI** → frontend + CI (`frontend/**`, frontend-ci).
+- **Windsurf** → UI + Storybook (frontend UI only).
+- **Junie (PhpStorm)** → diagnostics only (logs, inspections, no code changes).
 
-## Authorization (Simplified RBAC)
+## Routing
+Prompts respond only when message starts with one of:  
+`from: vs ai ...`, `from: cursor ...`, `from: windsurf ...`, `from: junie ...`
+
+## Guardrails
+- No Laravel scaffolding outside `backend/`.
+- Pre-flight tripwire = warn only, never block.
+- Proof of green = CI runs on PR.
+- Local artifacts optional.
+
+## Slim Gates
+- **BE (Backend-CI)** → backend-ci green on PR.
+- **FE (Frontend-CI)** → frontend-ci green on PR.  
+  Storybook runs only if UI files changed.
+
+## Pre-Flight Quick Commands
+- **Cursor**:  
+  ```bash
+  cd backend
+  php composer.phar install --no-interaction --prefer-dist
+  php artisan test
+  ```
+
+* **VS AI**:
+
+  ```bash
+  cd frontend
+  corepack enable && corepack prepare pnpm@8.15.4 --activate
+  pnpm install --frozen-lockfile
+  pnpm run -s typecheck
+  pnpm run -s test -- --run
+  ```
+* **Windsurf**:
+
+  ```bash
+  cd frontend
+  pnpm install --frozen-lockfile
+  pnpm run -s storybook:ci
+  ```
+* **Junie**: mirror `.gate*/` logs into `public-artifacts/` + inspect configs (read-only)
+
+---
+
+## RBAC (Simple)
 
 **Principle:** Everyone can **read, write, edit, comment, upload**.  
 **Roles only decide _where_ you act**, not _what_ you can do.
 
-- **Roles:** `ADMIN | TEAM | CONSULTANT | CLIENT`
-- **Areas:**
-  - `ADMIN` → Admin (Filament) at `/admin/*`
-  - `TEAM / CONSULTANT / CLIENT` → SPA at `/api/app/*`
+### Roles & Areas
+- **ADMIN** → Admin area (`/admin/*`) - Filament panels, task boards
+- **TEAM** → SPA area (`/api/app/*`) - Full workspace functions
+- **CONSULTANT** → SPA area (`/api/app/*`) - Limited collaboration + comments
+- **CLIENT** → SPA area (`/api/app/*`) - Focused tracking + sharing
 
-**Effective rule =** (Role allows area) **AND** (User is a member of the workspace/project).
+### Authorization Rule
+`(role allows area) AND (user is member of workspace/project)`
 
-We **do not** use request-level roles (Manager/Contributor/Viewer/Creator) or per-action matrices.
+### Feature Flag
+- `SIMPLE_RBAC=false` (default) - Legacy RBAC active
+- `SIMPLE_RBAC=true` - Simple RBAC active
 
-### Cursor Runbook: RBAC Implementation Steps
+### Health Checks
+- **Admin**: `GET /admin/health` (ADMIN role required)
+- **SPA**: `GET /api/app/health` (TEAM/CONSULTANT/CLIENT + workspace membership)
 
-**1. Feature Flag Setup**
-```bash
-cd backend
-echo "SIMPLE_RBAC=false" >> .env
-```
+### Workspace Creation
+- **Admin API**: `POST /admin/workspaces` (ADMIN role required)
+- **Tinker**: `php artisan tinker --execute="..."`
 
-**2. Configuration**
-```php
-// config/rbac.php
-return [
-    'enabled' => (bool) env('SIMPLE_RBAC', false),
-    'areas' => [
-        'admin' => ['ADMIN'],
-        'spa'   => ['TEAM','CONSULTANT','CLIENT'],
-    ],
-];
-```
+---
 
-**3. Middleware Creation**
-```php
-// app/Http/Middleware/EnsureRole.php
-class EnsureRole {
-    public function handle(Request $request, Closure $next, ...$roles) {
-        if (!config('rbac.enabled')) return $next($request);
-        $user = $request->user();
-        if (!$user) abort(401);
-        $role = strtoupper($user->role ?? '');
-        $allowed = $roles ?: $this->allowedRoles;
-        if (!in_array($role, array_map('strtoupper', $allowed), true)) {
-            abort(403);
-        }
-        return $next($request);
-    }
-}
+## Cursor RBAC Simplification Runbook
 
-// app/Http/Middleware/ScopeWorkspace.php
-class ScopeWorkspace {
-    public function handle(Request $request, Closure $next) {
-        if (!config('rbac.enabled')) return $next($request);
-        $workspaceId = $request->route('workspace') ?? $request->header('X-Workspace-Id');
-        abort_if(!$workspaceId, 400, 'Workspace required');
-        $user = $request->user();
-        $isMember = $user->workspaces()->whereKey($workspaceId)->exists();
-        abort_if(!$isMember, 403);
-        app()->instance('currentWorkspaceId', $workspaceId);
-        return $next($request);
-    }
-}
-```
+### 10-Step Implementation Guide
 
-**4. Policy Base**
-```php
-// app/Policies/BaseScopedPolicy.php
-abstract class BaseScopedPolicy {
-    public function before(User $user, string $ability): ?bool {
-        if (!config('rbac.enabled')) return null;
-        return null; // Defer to workspace membership checks
-    }
-    protected function isMember(User $user, $workspaceId): bool {
-        return $user->workspaces()->whereKey($workspaceId)->exists();
-    }
-}
-```
+1. **Feature Flag Setup**
+   Add `SIMPLE_RBAC=false` to `.env`. Default OFF for safety.
 
-**5. Route Wiring**
-```php
-// routes/web.php (Admin only)
-Route::middleware(['auth', 'ensureRole:ADMIN'])
-    ->prefix('admin')
-    ->group(function () {
-        Route::get('/tasks', fn() => 'admin tasks');
-        Route::get('/dashboard', fn() => 'admin dashboard');
-    });
+2. **Configuration**
+   Create `config/rbac.php` with roles: `ADMIN`, `TEAM`, `CONSULTANT`, `CLIENT`.
 
-// routes/api.php (SPA with workspace scoping)
-Route::middleware(['auth:sanctum', 'ensureRole:TEAM,CONSULTANT,CLIENT', 'scopeWorkspace'])
-    ->prefix('api/app')
-    ->group(function () {
-        Route::get('/workspaces/{workspace}/projects', function ($workspace) {
-            return response()->json(['workspace' => $workspace, 'projects' => []]);
-        });
-        // ... other SPA routes
-    });
-```
+3. **Middleware Creation**
 
-**6. Middleware Registration**
-```php
-// app/Providers/RouteServiceProvider.php
-public function boot(): void {
-    $router = $this->app['router'];
-    $router->aliasMiddleware('ensureRole', \App\Http\Middleware\EnsureRole::class);
-    $router->aliasMiddleware('scopeWorkspace', \App\Http\Middleware\ScopeWorkspace::class);
-    // ... rest of boot method
-}
-```
+   * `EnsureRole` → checks if user role allows admin vs SPA.
+   * `ScopeWorkspace` → ensures user is in workspace.
 
-**7. User Model Updates**
-```php
-// app/Models/User.php
-public function workspaces(): BelongsToMany {
-    return $this->belongsToMany(Workspace::class);
-}
+4. **Policy Base**
+   Add `BaseScopedPolicy` abstract class for workspace-scoped policies.
 
-public function isRole(string $role): bool {
-    return strtoupper($this->role ?? '') === strtoupper($role);
-}
-```
+5. **Route Wiring**
 
-**8. Test Suite**
-```php
-// tests/Feature/RbacWiringTest.php
-class RbacWiringTest extends TestCase {
-    protected function setUp(): void {
-        parent::setUp();
-        config(['rbac.enabled' => true]);
-    }
-    
-    public function test_blocks_non_admin_from_admin_routes() {
-        $user = User::factory()->create(['role' => 'TEAM']);
-        Sanctum::actingAs($user);
-        $this->get('/admin/tasks')->assertForbidden();
-    }
-    
-    public function test_allows_team_in_spa_when_member() {
-        $user = User::factory()->create(['role' => 'TEAM']);
-        $workspace = Workspace::factory()->create();
-        $user->workspaces()->attach($workspace->id);
-        Sanctum::actingAs($user);
-        $this->get("/api/app/workspaces/{$workspace->id}/projects")->assertOk();
-    }
-    // ... additional test cases
-}
-```
+   * `/admin/**` → `ADMIN` role only.
+   * `/api/app/**` → `TEAM|CONSULTANT|CLIENT` + workspace check.
 
-**9. Validation Commands**
-```bash
-cd backend
-php artisan test --filter="RbacWiringTest"
-php artisan route:list | grep -E "(admin|api/app)"
-```
+6. **Middleware Registration**
+   Register aliases in `bootstrap/app.php` for `EnsureRole` and `ScopeWorkspace`.
 
-**10. Rollout Process**
-- Deploy with `SIMPLE_RBAC=false` (default)
-- Test in staging with `SIMPLE_RBAC=true`
-- Monitor for issues
-- Enable in production when ready
-- Remove legacy RBAC in follow-up PR
+7. **User Model Updates**
+   Add `workspaces()` relationship and `isRole($role)` helper.
 
-## 🤖 Gates & Agents
+8. **Test Suite**
+   Add `RbacWiringTest.php` to prove:
 
-This repository uses a **multi-agent development approach** with specialized AI agents and automated gates:
+   * Admin can access `/admin`.
+   * Team/Consultant/Client blocked from `/admin`.
+   * Workspace scoping enforced in `/api/app`.
 
-### Development Agents
-- **Cursor**: Backend development (Laravel, PHP, database)
-- **VS AI**: Frontend development (Next.js, React, TypeScript)
-- **Windsurf**: Cross-cutting concerns and frontend features
-- **Junie (PhpStorm)**: Diagnostics only - provides read-only analysis and config inspection
+9. **Validation Commands**
 
-### Automated Gates
-- **Gate B (backend-ci)**: Runs on backend changes, managed by Cursor
-- **Gate F (frontend-ci)**: Runs on frontend changes, includes Storybook build on UI changes
+   ```bash
+   php artisan test --filter=RbacWiringTest
+   ```
 
-### Global Guardrails
-- **G2 Tripwire**: `git status --porcelain=v1` (warn-only) - alerts to uncommitted changes
-- **G3 Ownership**: Agents respect file/workflow ownership boundaries
-- **Junie Constraints**: Read-only role - cannot edit code, only provides diagnostics
+10. **Rollout Process**
 
-### Running Junie Diagnostics
+    * Keep flag OFF by default.
+    * Enable in staging → validate tests.
+    * Enable in production once validated.
+    * Cleanup old RBAC in follow-up PR.
 
-Junie provides diagnostic information through the Storm Guard system:
+---
 
-## Project Structure
+## Definition of Done (Project Level)
 
-
-## Windows: Run Storm Guard
-
-**Junie Diagnostics**: Use Storm Guard to generate diagnostic reports and public artifacts.
-
-### Read-Only Diagnostics (Default)
-
-1) From repo root (uses Windows PowerShell, not pwsh):
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\Storm-Guard.ps1
-```
-
-2) Already inside a Windows PowerShell window? Run it directly:
-
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-
-# Rehome Platform
-
-Rehome is the all-in-one operating system for residential construction.  
-It connects the full journey from **design → permits → build**, bringing together clients, teams, consultants, and admins in one place.
-
-## Vision
-- Give clients a clear portal to track progress, upload/share documents, and comment.
-- Provide teams with real-time tools to draft, review, and manage work.
-- Offer consultants a focused space to collaborate and comment.
-- Equip admins with full control via a dedicated `/admin` area.
-
-## Tech Stack
-- **Backend**: Laravel 11 + PostgreSQL
-- **Frontend**: Next.js 14 + React
-- **Auth**: Workspace-based roles (Admin, Team, Consultant, Client)
-- **CI/CD**: GitHub Actions (backend-ci, frontend-ci)
-- **Storybook**: UI component library for frontend
-
-
-## Development
-
-### Backend (Cursor)
-```bash
-cd backend
-php composer.phar install --no-interaction --prefer-dist
-php artisan test
-```
-
-### Frontend (VS AI)
-
-```bash
-cd frontend
-corepack enable && corepack prepare pnpm@8.15.4 --activate
-pnpm install --frozen-lockfile
-pnpm run -s typecheck
-pnpm run -s test -- --run
-```
-
-### UI / Storybook (Windsurf)
-
-```bash
-cd frontend
-pnpm install --frozen-lockfile
-pnpm run -s storybook:ci
-```
-
-### Diagnostics (Junie / PhpStorm)
-
-Read-only inspections, log mirroring into `public-artifacts/`.
-
-## Definition of Done
-
-* Requests UI supports optimistic comments + assign/status flows.
-* A11y lint passes.
-* Storybook builds when UI touched.
+* Requests UI with optimistic comments + assign/status flows.
+* A11y lint passes; Storybook builds when UI touched.
 * Vitest/MSW tests pass in CI.
 * Both backend-ci and frontend-ci green on PR.
 * Responsive shell works on desktop + iPad.
 
 ---
+
+⚠️ **Reminder:** Only output prompts when message starts with `from:` and names a specific agent.

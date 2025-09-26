@@ -1,20 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import React from 'react'
 import { RoleGate } from './RoleGate'
-import type { Role } from '@/lib/types'
 
 const meta: Meta<typeof RoleGate> = {
   title: 'Auth/RoleGate',
   component: RoleGate,
   parameters: {
     layout: 'centered',
-    docs: { description: { component: 'Renders children only if the mocked user role is included in the `allow` list. Uses global toolbar role from Storybook to simulate auth context.' } },
+    docs: { description: { component: 'Renders children based on area access. area="admin" shows content only to admin users; area="app" shows to any logged-in user.' } },
   },
   argTypes: {
-    allow: {
-      control: 'inline-check',
-      options: ['admin', 'project_manager', 'team_member'] as Role[],
-      description: 'Allowed roles',
+    area: {
+      control: 'inline-radio',
+      options: ['admin', 'app'],
+      description: 'Area to guard',
     },
     fallback: { control: 'text' },
     children: { control: false },
@@ -28,7 +27,7 @@ type Story = StoryObj<typeof RoleGate>
 export const AccessGranted: Story = {
   name: 'Access Granted',
   args: {
-    allow: ['admin', 'project_manager'],
+    area: 'app',
     fallback: <div style={{ padding: 16 }}>No Access</div>,
     children: <div style={{ padding: 16 }}>Secret content visible to allowed roles.</div>,
   },
@@ -40,7 +39,7 @@ export const AccessGranted: Story = {
 export const AccessDenied: Story = {
   name: 'Access Denied',
   args: {
-    allow: ['project_manager'],
+    area: 'admin',
     fallback: <div style={{ padding: 16 }}>No Access</div>,
     children: <div style={{ padding: 16 }}>This should not render for team_member.</div>,
   },
@@ -52,7 +51,7 @@ export const AccessDenied: Story = {
 export const GuestFallback: Story = {
   name: 'Guest (Fallback)',
   args: {
-    allow: ['admin', 'project_manager', 'team_member'],
+    area: 'app',
     fallback: <div style={{ padding: 16 }}>Please log in</div>,
     children: <div style={{ padding: 16 }}>Private content</div>,
   },

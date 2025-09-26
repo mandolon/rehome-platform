@@ -75,7 +75,7 @@ export default function ProjectsPage() {
             Manage and track all your projects
           </p>
         </div>
-        <RoleGate allow={['admin', 'project_manager']}>
+        <RoleGate area="app">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
             New Project
@@ -180,7 +180,7 @@ export default function ProjectsPage() {
                       : 'Get started by creating your first project'
                     }
                   </p>
-                  <RoleGate allow={['admin', 'project_manager']}>
+                  <RoleGate area="app">
                     <Button>
                       <Plus className="mr-2 h-4 w-4" />
                       Create Project
@@ -196,7 +196,7 @@ export default function ProjectsPage() {
             <div className="flex items-center justify-center space-x-2">
               <Button
                 variant="outline"
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
                 Previous
@@ -206,7 +206,7 @@ export default function ProjectsPage() {
               </span>
               <Button
                 variant="outline"
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
               >
                 Next

@@ -11,12 +11,14 @@ class ApiClient {
   constructor() {
     // Use mock API base URL when in mock mode, otherwise use the configured API URL
     if (process.env.NEXT_PUBLIC_USE_API_MOCK === '1') {
-      this.apiURL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api'
+      // In mock mode, ensure SPA endpoints are under /api/app
+      this.apiURL = process.env.NEXT_PUBLIC_API_BASE_URL || '/api/app'
       this.baseURL = '' // No separate base URL needed for mock mode
     } else {
-      this.apiURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9000/api'
-      // Extract base URL for CSRF endpoint (remove /api suffix)
-      this.baseURL = this.apiURL.replace('/api', '')
+      // Default real API URL now points to /api/app for SPA area
+      this.apiURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9000/api/app'
+      // Extract base URL for CSRF endpoint (remove /api/app suffix)
+      this.baseURL = this.apiURL.replace('/api/app', '')
     }
   }
 

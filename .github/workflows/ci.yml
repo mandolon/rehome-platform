@@ -54,8 +54,17 @@ jobs:
       - name: Run migrations
         run: php artisan migrate --no-interaction
 
-      - name: Test
-        run: php artisan test --colors=always
+      - name: Test (Simple RBAC)
+        run: |
+          echo "SIMPLE_RBAC=true" >> .env
+          php artisan config:clear
+          php artisan test --group simple_rbac --colors=always
+      
+      - name: Test (Legacy RBAC)
+        run: |
+          echo "SIMPLE_RBAC=false" >> .env
+          php artisan config:clear
+          php artisan test --exclude-group simple_rbac --colors=always
 
   frontend:
     runs-on: ubuntu-latest

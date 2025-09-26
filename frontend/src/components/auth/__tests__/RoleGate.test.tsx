@@ -9,8 +9,8 @@ import { vi } from 'vitest'
 vi.mock('@/lib/auth/AuthProvider')
 const mockUseAuth = vi.mocked(useAuth)
 
-describe('RoleGate Component', () => {
-  it('should render children when user has allowed role', () => {
+describe('RoleGate Component (area-based)', () => {
+  it('admin should see admin area', () => {
     mockUseAuth.mockReturnValue({
       user: {
         id: 1,
@@ -28,7 +28,7 @@ describe('RoleGate Component', () => {
     })
 
     const { getByText } = render(
-      <RoleGate allow={['admin', 'project_manager']}>
+      <RoleGate area="admin">
         <div>Admin Content</div>
       </RoleGate>
     )
@@ -36,7 +36,7 @@ describe('RoleGate Component', () => {
     expect(getByText('Admin Content')).toBeDefined()
   })
 
-  it('should not render children when user does not have allowed role', () => {
+  it('non-admin should NOT see admin area', () => {
     mockUseAuth.mockReturnValue({
       user: {
         id: 1,
@@ -54,7 +54,7 @@ describe('RoleGate Component', () => {
     })
 
     const { queryByText } = render(
-      <RoleGate allow={['admin', 'project_manager']}>
+      <RoleGate area="admin">
         <div>Admin Content</div>
       </RoleGate>
     )
@@ -62,7 +62,7 @@ describe('RoleGate Component', () => {
     expect(queryByText('Admin Content')).toBeNull()
   })
 
-  it('should render fallback when user does not have allowed role', () => {
+  it('any logged-in user should see app area; guests see fallback', () => {
     mockUseAuth.mockReturnValue({
       user: {
         id: 1,
@@ -79,12 +79,28 @@ describe('RoleGate Component', () => {
       refreshMe: vi.fn(),
     })
 
-    const { getByText } = render(
-      <RoleGate allow={['admin']} fallback={<div>Access Denied</div>}>
-        <div>Admin Content</div>
+    const { getByText, rerender } = render(
+      <RoleGate area="app" fallback={<div>Access Denied</div>}>
+        <div>App Content</div>
       </RoleGate>
     )
+    expect(getByText('App Content')).toBeDefined()
 
+    // Guest state should render fallback
+    mockUseAuth.mockReturnValue({
+      user: null,
+      loading: false,
+      login: vi.fn(),
+      register: vi.fn(),
+      logout: vi.fn(),
+      refreshMe: vi.fn(),
+    })
+
+    rerender(
+      <RoleGate area="app" fallback={<div>Access Denied</div>}>
+        <div>App Content</div>
+      </RoleGate>
+    )
     expect(getByText('Access Denied')).toBeDefined()
   })
 })
