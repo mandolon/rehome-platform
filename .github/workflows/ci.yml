@@ -6,27 +6,65 @@ on:
 
 jobs:
   backend:
+    name: Backend (Laravel)
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: backend
     
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
       
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite, sqlite3, dom, fileinfo
           coverage: none
       
-      - name: Install dependencies
-        run: composer install --no-dev --prefer-dist --optimize-autoloader
+      - name: Setup Composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+
+      - name: Install PHP deps (no scripts)
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+
+      - name: Prepare app env
+        run: |
+          cp .env.example .env
+          php -r "file_exists('storage') || mkdir('storage', 0777, true);"
+          php -r "file_exists('bootstrap/cache') || mkdir('bootstrap/cache', 0777, true);"
+          php artisan key:generate
+
+      - name: Autoload optimize + package discovery
+        run: |
+          composer dump-autoload -o --no-scripts
+          php artisan package:discover
+
+      - name: Configure sqlite memory
+        run: |
+          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          echo "DB_DATABASE=:memory:" >> .env
+          php artisan config:clear
+
+      - name: Run migrations
+        run: php artisan migrate --no-interaction
+
+      - name: Test (Simple RBAC)
+        run: |
+          echo "SIMPLE_RBAC=true" >> .env
+          php artisan config:clear
+          php artisan test --group simple_rbac --colors=always
       
-      - name: Run tests
-        run: php artisan test
+      - name: Test (Legacy RBAC)
+        run: |
+          echo "SIMPLE_RBAC=false" >> .env
+          php artisan config:clear
+          php artisan test --exclude-group simple_rbac --colors=always
 
   frontend:
     runs-on: ubuntu-latest

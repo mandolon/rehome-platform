@@ -1,30 +1,42 @@
 import { http, HttpResponse } from 'msw'
 
-const fakeUser = {
+const fakeAdmin = {
   id: 1,
   name: 'Demo Admin',
   email: 'admin@rehome.build',
   role: 'admin' as const,
+
   email_verified_at: new Date().toISOString(),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 }
 
-const fakeManager = {
+const fakeTeam = {
   id: 2,
-  name: 'Demo Manager',
-  email: 'manager@rehome.build',
-  role: 'manager' as const,
+  name: 'Demo Team Member',
+  email: 'team@rehome.build',
+  role: 'team' as const,
+
   email_verified_at: new Date().toISOString(),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 }
 
-const fakeEmployee = {
+const fakeClient = {
   id: 3,
-  name: 'Demo Employee',
-  email: 'employee@rehome.build',
-  role: 'employee' as const,
+  name: 'Demo Client',
+  email: 'client@rehome.build',
+  role: 'client' as const,
+  email_verified_at: new Date().toISOString(),
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+}
+
+const fakeConsultant = {
+  id: 5,
+  name: 'Demo Consultant',
+  email: 'consultant@rehome.build',
+  role: 'consultant' as const,
   email_verified_at: new Date().toISOString(),
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
@@ -33,7 +45,7 @@ const fakeEmployee = {
 export const handlers = [
   // CSRF token (for Laravel Sanctum compatibility)
   http.get('/sanctum/csrf-cookie', () => {
-    return new HttpResponse(null, { 
+    return new HttpResponse(null, {
       status: 204,
       headers: {
         'Set-Cookie': 'XSRF-TOKEN=mock-csrf-token; Path=/; SameSite=lax',
@@ -42,139 +54,137 @@ export const handlers = [
   }),
 
   // Login
-  http.post('/api/auth/login', async ({ request }) => {
-    console.log('MSW: Intercepted POST /api/auth/login')
+  http.post('/api/app/auth/login', async ({ request }) => {
     try {
-      const body = await request.json() as { email: string; password: string }
-      console.log('MSW: Login attempt with email:', body.email)
-      
-      // Demo credentials
-      let user: typeof fakeUser | typeof fakeManager | typeof fakeEmployee = fakeEmployee
+      const body = (await request.json()) as { email: string; password: string }
+
+      let user: typeof fakeAdmin | typeof fakeTeam | typeof fakeClient | typeof fakeConsultant = fakeClient
       if (body.email === 'admin@rehome.build') {
-        user = fakeUser
-      } else if (body.email === 'manager@rehome.build') {
-        user = fakeManager
-      } else if (body.email === 'employee@rehome.build') {
-        user = fakeEmployee
+        user = fakeAdmin
+      } else if (body.email === 'team@rehome.build') {
+        user = fakeTeam
+      } else if (body.email === 'consultant@rehome.build') {
+        user = fakeConsultant
+      } else if (body.email === 'client@rehome.build') {
+        user = fakeClient
       }
-      
+
       if (body.email && body.password) {
-        console.log('MSW: Login successful for:', body.email)
-        return HttpResponse.json({ 
-          data: user,
-          message: 'Login successful'
-        }, { 
-          status: 200,
-          headers: {
-            'Set-Cookie': 'laravel_session=mock-session-token; Path=/; HttpOnly; SameSite=lax',
-          },
-        })
+        return HttpResponse.json(
+          { data: user, message: 'Login successful' },
+          {
+            status: 200,
+            headers: {
+              'Set-Cookie': 'laravel_session=mock-session; Path=/; HttpOnly; SameSite=lax',
+            },
+          }
+        )
       }
-      
-      console.log('MSW: Login failed for:', body.email)
-      return HttpResponse.json({ 
-        message: 'Invalid credentials',
-        errors: {
-          email: ['The provided credentials are incorrect.']
-        }
-      }, { status: 422 })
+
+      return HttpResponse.json(
+        {
+          message: 'Invalid credentials',
+          errors: { email: ['The provided credentials are incorrect.'] },
+        },
+        { status: 422 }
+      )
     } catch (error) {
-      console.error('MSW: Login handler error:', error)
-      return HttpResponse.json({ 
-        message: 'Invalid request' 
-      }, { status: 400 })
+      return HttpResponse.json({ message: 'Invalid request' }, { status: 400 })
     }
   }),
 
   // Register
-  http.post('/api/auth/register', async ({ request }) => {
+  http.post('/api/app/auth/register', async ({ request }) => {
     try {
-      const body = await request.json() as {
+      const body = (await request.json()) as {
         name: string
         email: string
         password: string
         password_confirmation: string
       }
-      
-      // Basic validation
+
       if (!body.name || !body.email || !body.password) {
-        return HttpResponse.json({
-          message: 'Validation failed',
-          errors: {
-            name: !body.name ? ['The name field is required.'] : undefined,
-            email: !body.email ? ['The email field is required.'] : undefined,
-            password: !body.password ? ['The password field is required.'] : undefined,
-          }
-        }, { status: 422 })
+        return HttpResponse.json(
+          {
+            message: 'Validation failed',
+            errors: {
+              name: !body.name ? ['The name field is required.'] : undefined,
+              email: !body.email ? ['The email field is required.'] : undefined,
+              password: !body.password ? ['The password field is required.'] : undefined,
+            },
+          },
+          { status: 422 }
+        )
       }
 
       if (body.password !== body.password_confirmation) {
-        return HttpResponse.json({
-          message: 'Validation failed',
-          errors: {
-            password: ['The password confirmation does not match.']
-          }
-        }, { status: 422 })
+        return HttpResponse.json(
+          {
+            message: 'Validation failed',
+            errors: { password: ['The password confirmation does not match.'] },
+          },
+          { status: 422 }
+        )
       }
-      
+
       const newUser = {
         id: 4,
         name: body.name,
         email: body.email,
-        role: 'employee' as const,
+        role: 'client' as const,
         email_verified_at: new Date().toISOString(),
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       }
-      
-      return HttpResponse.json({ 
-        data: newUser,
-        message: 'Registration successful'
-      }, { 
-        status: 201,
-        headers: {
-          'Set-Cookie': 'laravel_session=mock-session-token-new; Path=/; HttpOnly; SameSite=lax',
-        },
-      })
+
+      return HttpResponse.json(
+        { data: newUser, message: 'Registration successful' },
+        {
+          status: 201,
+          headers: {
+            'Set-Cookie': 'laravel_session=mock-session; Path=/; HttpOnly; SameSite=lax',
+          },
+        }
+      )
     } catch (error) {
-      return HttpResponse.json({ 
-        message: 'Invalid request' 
-      }, { status: 400 })
+      return HttpResponse.json({ message: 'Invalid request' }, { status: 400 })
     }
   }),
 
   // Get current user
-  http.get('/api/auth/me', ({ request }) => {
-    console.log('MSW: Intercepted GET /api/auth/me')
+  http.get('/api/app/auth/me', ({ request }) => {
+    console.log('MSW: Intercepted GET /api/app/auth/me')
     const cookie = request.headers.get('cookie')
     console.log('MSW: Cookie header:', cookie)
-    
+
     if (cookie?.includes('laravel_session=mock-session')) {
       console.log('MSW: Valid session found, returning user data')
-      return HttpResponse.json({ 
-        data: fakeUser,
-        message: 'User retrieved successfully'
-      }, { status: 200 })
+      return HttpResponse.json(
+        {
+          data: fakeAdmin,
+          message: 'User retrieved successfully',
+        },
+        { status: 200 }
+      )
     }
-    
+
     console.log('MSW: No valid session found, returning 401')
     return HttpResponse.json({ message: 'Unauthenticated' }, { status: 401 })
   }),
 
   // Logout
-  http.post('/api/auth/logout', () => {
+  http.post('/api/app/auth/logout', () => {
     return HttpResponse.json({ 
       message: 'Logged out successfully'
     }, { 
       status: 200,
       headers: {
-        'Set-Cookie': 'laravel_session=; Path=/; HttpOnly; SameSite=lax; Expires=Thu, 01 Jan 1970 00:00:00 GMT',
       },
     })
   }),
 
   // Projects endpoints (for testing the dashboard)
-  http.get('/api/projects', () => {
+  http.get('/api/app/projects', () => {
     const mockProjects = [
       {
         id: 1,
@@ -197,7 +207,7 @@ export const handlers = [
   }),
 
   // Tasks endpoints
-  http.get('/api/tasks', () => {
+  http.get('/api/app/tasks', () => {
     const mockTasks = [
       {
         id: 1,

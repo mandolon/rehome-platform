@@ -43,7 +43,7 @@ describe('ApiClient', () => {
       await apiClient.get('/test')
 
       expect(mockFetch).toHaveBeenCalledWith(
-        'http://localhost:9000/api/test',
+        'http://localhost:9000/api/app/test',
         expect.objectContaining({
           credentials: 'include',
         })

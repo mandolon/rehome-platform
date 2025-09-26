@@ -1,4 +1,41 @@
-'use client'
+import { useMemo } from 'react';
+import { useAuth } from '@/lib/auth/AuthProvider';
+import type { Role } from '@/lib/types';
+
+type RoleInput = Role | string | Array<Role | string>;
+
+function normalizeRole(input: unknown): Role {
+  const v = String(input ?? '').toLowerCase();
+  if (v === 'admin') return 'admin';
+  if (v === 'team') return 'team';
+  if (v === 'consultant') return 'consultant';
+  if (v === 'client') return 'client';
+  return 'client';
+}
+
+export function useRole() {
+  const { user } = useAuth();
+
+  const role: Role = useMemo(
+    () => normalizeRole((user as any)?.role),
+    [user]
+  );
+
+  function hasRole(input: RoleInput): boolean {
+    const wants = (Array.isArray(input) ? input : [input]).map((w) =>
+      normalizeRole(w)
+    );
+    return wants.includes(role);
+  }
+
+  function isAdmin(): boolean {
+    return role === 'admin';
+  }
+
+  return { user, role, hasRole, isAdmin };
+}
+
+export default useRole;
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -20,7 +57,7 @@ interface AuthContextType {
   refreshUser: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
+export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -34,8 +71,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await getMe()
-      setUser(response.user)
+      const user = await getMe()
+      setUser(user)
     } catch (error) {
       // User not authenticated, clear any stale state
       setUser(null)
@@ -70,8 +107,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const response = await getMe()
-      setUser(response.user)
+      const user = await getMe()
+      setUser(user)
     } catch (error) {
       // If refresh fails, user is no longer authenticated
       setUser(null)

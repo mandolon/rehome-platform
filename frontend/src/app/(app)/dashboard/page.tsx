@@ -79,7 +79,7 @@ export default function DashboardPage() {
             Here's what's happening with your projects today.
           </p>
         </div>
-        <RoleGate allow={['admin', 'project_manager']}>
+        <RoleGate area="app">
           <Button asChild>
             <Link href="/projects?create=true">
               <Plus className="mr-2 h-4 w-4" />
@@ -130,7 +130,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <RoleGate allow={['admin', 'project_manager']}>
+        <RoleGate area="app">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Team Members</CardTitle>

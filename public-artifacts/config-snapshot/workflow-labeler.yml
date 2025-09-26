@@ -1,0 +1,145 @@
+name: Auto Labeler
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Auto-label based on files changed
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            const changedFiles = files.map(file => file.filename);
+            const labels = [];
+
+            // Security-related changes
+            const securityPaths = [
+              'backend/routes/',
+              'backend/config/',
+              'backend/bootstrap/',
+              'backend/app/Http/Middleware/',
+              'frontend/src/lib/api.ts',
+              'frontend/src/lib/auth.ts',
+              'frontend/src/lib/axios-interceptors.ts',
+              '.github/workflows/',
+              '.coderabbit/'
+            ];
+
+            const hasSecurityChanges = changedFiles.some(file => 
+              securityPaths.some(path => file.includes(path))
+            );
+
+            if (hasSecurityChanges) {
+              labels.push('security-review');
+            }
+
+            // Backend changes
+            const hasBackendChanges = changedFiles.some(file => file.startsWith('backend/'));
+            if (hasBackendChanges) {
+              labels.push('backend');
+            }
+
+            // Frontend changes
+            const hasFrontendChanges = changedFiles.some(file => file.startsWith('frontend/'));
+            if (hasFrontendChanges) {
+              labels.push('frontend');
+            }
+
+            // Database changes
+            const hasDatabaseChanges = changedFiles.some(file => 
+              file.includes('database/migrations/') || 
+              file.includes('database/seeders/')
+            );
+            if (hasDatabaseChanges) {
+              labels.push('database');
+            }
+
+            // Configuration changes
+            const hasConfigChanges = changedFiles.some(file => 
+              file.includes('config/') || 
+              file.includes('.env') ||
+              file.includes('composer.json') ||
+              file.includes('package.json')
+            );
+            if (hasConfigChanges) {
+              labels.push('configuration');
+            }
+
+            // Documentation changes
+            const hasDocChanges = changedFiles.some(file => 
+              file.endsWith('.md') || 
+              file.includes('docs/')
+            );
+            if (hasDocChanges) {
+              labels.push('documentation');
+            }
+
+            // Tests changes
+            const hasTestChanges = changedFiles.some(file => 
+              file.includes('/tests/') || 
+              file.includes('.test.') ||
+              file.includes('.spec.') ||
+              file.includes('cypress/')
+            );
+            if (hasTestChanges) {
+              labels.push('tests');
+            }
+
+            // CI/CD changes
+            const hasCIChanges = changedFiles.some(file => 
+              file.includes('.github/workflows/') ||
+              file.includes('.coderabbit/')
+            );
+            if (hasCIChanges) {
+              labels.push('ci-cd');
+            }
+
+            // Size-based labels
+            const totalChanges = files.reduce((sum, file) => sum + file.changes, 0);
+            if (totalChanges > 500) {
+              labels.push('size/large');
+            } else if (totalChanges > 100) {
+              labels.push('size/medium');
+            } else {
+              labels.push('size/small');
+            }
+
+            // Apply labels
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labels
+              });
+
+              console.log(`Applied labels: ${labels.join(', ')}`);
+            }
+
+            // Special comment for security-review PRs
+            if (labels.includes('security-review')) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `🔒 **Security Review Required**\n\nThis PR modifies security-sensitive files and requires careful review:\n\n**Files requiring attention:**\n${changedFiles.filter(file => 
+  securityPaths.some(path => file.includes(path))
+).map(file => `- \`${file}\``).join('\n')}\n\n**Review checklist:**\n- [ ] Authentication/authorization changes are intentional\n- [ ] CORS configuration maintains security\n- [ ] No credentials or secrets exposed\n- [ ] Session/cookie settings are appropriate\n- [ ] CodeRabbit security flags addressed\n\n**Reviewers:** Please pay special attention to the security implications of these changes.`
+              });
+            }

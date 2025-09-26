@@ -135,13 +135,12 @@ export default function ProjectDetailPage() {
               {project.start_date && (
                 <span className="text-sm text-muted-foreground flex items-center">
                   <Calendar className="mr-1 h-3 w-3" />
-                  Started {new Date(project.start_date).toLocaleDateString()}
                 </span>
               )}
             </div>
           </div>
         </div>
-        <RoleGate allow={['admin', 'project_manager']}>
+        <RoleGate area="app">
           <div className="flex space-x-2">
             <Button variant="outline">Edit Project</Button>
             <Button>
@@ -150,6 +149,7 @@ export default function ProjectDetailPage() {
             </Button>
           </div>
         </RoleGate>
+
       </div>
 
       {/* Project Overview */}
@@ -164,190 +164,76 @@ export default function ProjectDetailPage() {
         </Card>
       )}
 
-      {/* Project Stats */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
-            <CheckSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{tasks.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {tasks.filter(task => task.status === 'completed').length}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Team Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{project.members_count || 0}</div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Tasks Section */}
-      <Tabs defaultValue="all" className="space-y-4">
-        <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="all">All Tasks</TabsTrigger>
-            <TabsTrigger value="redline">Redline</TabsTrigger>
-            <TabsTrigger value="progress">In Progress</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="all" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>All Tasks</CardTitle>
-              <CardDescription>
-                Complete list of tasks for this project
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {tasksLoading ? (
-                <div className="space-y-2">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="h-12 w-full" />
-                  ))}
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Task</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>Assigned To</TableHead>
-                      <TableHead>Due Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {tasks.map((task) => (
-                      <TableRow key={task.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{task.title}</p>
-                            {task.description && (
-                              <p className="text-sm text-muted-foreground line-clamp-1">
-                                {task.description}
-                              </p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getStatusColor(task.status)}>
-                            {task.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={getPriorityColor(task.priority)}>
-                            {task.priority}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {task.assigned_user?.name || 'Unassigned'}
-                        </TableCell>
-                        <TableCell>
-                          {task.due_date 
-                            ? new Date(task.due_date).toLocaleDateString()
-                            : '-'
-                          }
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-
-              {!tasksLoading && tasks.length === 0 && (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground mb-4">No tasks in this project yet</p>
-                  <RoleGate allow={['admin', 'project_manager']}>
-                    <Button>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add First Task
-                    </Button>
-                  </RoleGate>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {['redline', 'progress', 'completed'].map((status) => (
-          <TabsContent key={status} value={status}>
-            <Card>
-              <CardHeader>
-                <CardTitle className="capitalize">{status} Tasks</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Task</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>Assigned To</TableHead>
-                      <TableHead>Due Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {tasks
-                      .filter(task => task.status === status)
-                      .map((task) => (
-                        <TableRow key={task.id}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">{task.title}</p>
-                              {task.description && (
-                                <p className="text-sm text-muted-foreground line-clamp-1">
-                                  {task.description}
-                                </p>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getPriorityColor(task.priority)}>
-                              {task.priority}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {task.assigned_user?.name || 'Unassigned'}
-                          </TableCell>
-                          <TableCell>
-                            {task.due_date 
-                              ? new Date(task.due_date).toLocaleDateString()
-                              : '-'
-                            }
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                  </TableBody>
-                </Table>
-                {tasks.filter(task => task.status === status).length === 0 && (
-                  <div className="text-center py-8">
-                    <p className="text-muted-foreground">No {status} tasks</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
+      <Card>
+        <CardHeader>
+          <CardTitle>Tasks</CardTitle>
+          <CardDescription>Tasks for this project</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {tasksLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
+          ) : tasks.length > 0 ? (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Task</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Priority</TableHead>
+                  <TableHead>Assigned To</TableHead>
+                  <TableHead>Due Date</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {tasks.map((task) => (
+                  <TableRow key={task.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{task.title}</p>
+                        {task.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-1">
+                            {task.description}
+                          </p>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(task.status)}>
+                        {task.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getPriorityColor(task.priority)}>
+                        {task.priority}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {task.assigned_user?.name || 'Unassigned'}
+                    </TableCell>
+                    <TableCell>
+                      {task.due_date ? new Date(task.due_date).toLocaleDateString() : '-'}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground mb-4">No tasks in this project yet</p>
+              <RoleGate area="app">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add First Task
+                </Button>
+              </RoleGate>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }
