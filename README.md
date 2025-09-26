@@ -83,3 +83,41 @@ Unblock-File .\scripts\Storm-Guard.ps1
 - The dirty git tree warning is expected (storybook artifacts, etc.) and will warn but continue
 - In VS Code, use Tasks: "Storm: Proof (Read-Only)" or "Storm: Enable Writes (One-Run)"
 - For PowerShell 7: `winget install --id Microsoft.PowerShell -e`
+
+## Roadmap to Final Output
+
+### 1. **Skeleton Hierarchy (Admin-first)**
+- Define Roles (admin, team, consultant, client)
+- Entities: User, Workspace, Project, Task, Comment, Attachment, Activity
+- Relations + Stamps
+
+### 2. **Backend Setup (Cursor)**
+- Migrations + Models with relations
+- Policies (admin full CRUD)
+- Filament Resources (User, Workspace, Project, Task, with RelationManagers)
+- Seed demo data (1 workspace, 1 project, 2 tasks, etc.)
+- Gate B (backend-ci) must pass
+
+### 3. **Frontend/SPA (VS AI & Windsurf)**
+- SPA for non-admin roles (team/consultant/client)
+- Admin panel styling + Storybook components
+- Task Board UI (group by status/project/assignee/date)
+- Project page tabs: Files, Tasks, Meta
+- Gate F (frontend-ci + Storybook) must pass
+
+### 4. **Diagnostics (Junie)**
+- Read-only mirroring of Gate B/F logs into `public-artifacts/`
+- Config inspections (package.json, Storybook, Vitest, workflows)
+- No code edits; diagnostics only
+
+### 5. **CI Gates Discipline**
+- Gate B: backend-ci (green required)
+- Gate F: frontend-ci (green required)
+- Junie: non-gating, diagnostics only
+
+### 6. **Final Output Definition**
+- Admin panel (Filament) fully functional with Projects/Tasks/Comments/Attachments/Activity
+- SPA roles routed correctly
+- Storybook build (v8.6.14) verified
+- Tests (Laravel + Vitest) green in CI
+- Roadmap milestones all checked off
