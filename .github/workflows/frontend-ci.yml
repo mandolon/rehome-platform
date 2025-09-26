@@ -1,10 +1,15 @@
 name: frontend-ci
 
 on:
-  push:
-    paths: ["frontend/**", ".github/workflows/frontend-ci.yml"]
   pull_request:
-    paths: ["frontend/**", ".github/workflows/frontend-ci.yml"]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,11 +18,29 @@ concurrency:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      CI: true
     defaults:
       run:
         working-directory: frontend
     steps:
       - uses: actions/checkout@v4
+
+      # Detect if Storybook/UI files changed (for PRs)
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            storybook:
+              - 'frontend/.storybook/**'
+              - 'frontend/src/**/*.stories.@(tsx|mdx)'
+              - 'frontend/src/**/*.story.@(tsx|mdx)'
+              - 'frontend/src/components/**'
+              - 'frontend/tailwind.config.*'
+              - 'frontend/postcss.config.*'
+              - 'frontend/package.json'
+              - 'frontend/pnpm-lock.yaml'
+
       - name: Setup Node 20.x
         uses: actions/setup-node@v4
         with:
@@ -28,14 +51,17 @@ jobs:
           corepack enable
           corepack prepare pnpm@8.15.4 --activate
           pnpm -v
-      - name: Install deps
+      - name: Install
         run: pnpm install --frozen-lockfile
       - name: Lint
-        run: pnpm run lint || pnpm exec eslint . --max-warnings=0
+        run: pnpm -s lint || pnpm exec eslint . --max-warnings=0
       - name: Typecheck
-        run: pnpm run typecheck
-      - name: Test
-        run: pnpm run test -- --run --reporter=dot --test-timeout=30000
-      - name: Storybook build (optional)
-        if: ${{ always() }}
-        run: NODE_OPTIONS="--max-old-space-size=4096" pnpm run storybook:ci
+        run: pnpm -s typecheck
+      - name: Tests
+        run: pnpm -s test -- --run --reporter=dot --test-timeout=30000
+
+      # Storybook build only when needed on PRs; always on pushes to main
+      - name: Storybook build
+        if: ${{ github.event_name == 'push' || steps.filter.outputs.storybook == 'true' }}
+        run: |
+          NODE_OPTIONS="--max-old-space-size=4096" pnpm -s sb:build
