@@ -1,6 +1,6 @@
 @echo off
 echo === Pre-flight Checks (Fast Dev Loop) ===
-echo Running all checks that CodeRabbit and CI will perform...
+echo Running all checks that CI will perform...
 
 set ERROR_COUNT=0
 
@@ -123,18 +123,16 @@ if %ERROR_COUNT% equ 0 (
     echo Next steps:
     echo 1. git add . ^&^& git commit -m "your message"
     echo 2. git push
-    echo 3. Create PR and wait for CodeRabbit review
+    echo 3. Create PR and wait for review
 ) else (
     echo ❌ %ERROR_COUNT% check(s) failed. Fix issues before creating PR.
     echo.
-    echo CodeRabbit and CI will also catch these issues, but fixing locally is faster.
+    echo CI will also catch these issues, but fixing locally is faster.
 )
 
 echo.
-echo 🤖 CodeRabbit will also check:
+echo 📋 Additional areas to review manually:
 echo    - Sanctum auth middleware on protected routes
 echo    - Axios withCredentials configuration  
 echo    - CORS security settings
-echo    - Laravel and React best practices
-
-pause
+echo    - Laravel and React best practicespause

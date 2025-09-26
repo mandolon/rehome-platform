@@ -91,6 +91,62 @@ src/
 - `pnpm typecheck` - Run TypeScript compiler check
 - `pnpm test` - Run tests with Vitest
 - `pnpm format` - Format code with Prettier
+- `pnpm health:api` - Show API health check URL and info
+- `pnpm csrf:init` - Show CSRF initialization flow info
+
+## Sanity Checks
+
+For quick health checks and CSRF smoke testing, use the provided HTTP files and npm scripts:
+
+### VS Code REST Client
+
+1. Install the **REST Client** extension in VS Code
+2. Open `../snippets/health-checks.http`
+3. Update the `@API_URL` variable or set your environment variables
+4. Click "Send Request" above each HTTP request to test:
+   - **Health Check**: `GET /api/health` - Basic connectivity
+   - **CSRF Cookie**: `GET /sanctum/csrf-cookie` - Initialize session
+   - **Login**: `POST /login` - Test authentication (update credentials)
+   - **User Info**: `GET /api/me` - Verify authenticated session
+   - **Protected Endpoints**: Test various API endpoints
+
+### Environment Configuration
+
+Create `.vscode/settings.json` for multiple environments:
+
+```json
+{
+  "rest-client.environmentVariables": {
+    "local": {
+      "API_URL": "http://127.0.0.1:9000"
+    },
+    "staging": {
+      "API_URL": "https://api-staging.example.com"
+    }
+  }
+}
+```
+
+### CSRF Flow
+
+Before making authenticated requests, the SPA must:
+
+1. Call `GET /sanctum/csrf-cookie` to initialize session and get CSRF token
+2. Include `X-Requested-With: XMLHttpRequest` header
+3. Cookies (`laravel_session`, `XSRF-TOKEN`) are handled automatically
+4. All subsequent requests will include proper CSRF validation
+
+Use `pnpm csrf:init` for a quick reminder of this flow.
+
+### Cross-Platform Testing
+
+The health check scripts work across:
+- **Local development** (Laravel Serve)
+- **Docker containers** 
+- **Staging/Production** deployments
+- **Vapor/Lambda** environments (once deployed)
+
+This ensures consistent behavior across all deployment targets.
 
 ## API Integration
 

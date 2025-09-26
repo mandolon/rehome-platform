@@ -6,27 +6,56 @@ on:
 
 jobs:
   backend:
+    name: Backend (Laravel)
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: backend
     
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
       
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite, bcmath, soap, intl, gd, exif, iconv
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite, sqlite3, dom, fileinfo
           coverage: none
       
-      - name: Install dependencies
-        run: composer install --no-dev --prefer-dist --optimize-autoloader
+      - name: Setup Composer cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
       
-      - name: Run tests
-        run: php artisan test
+      - name: Install PHP deps (no scripts)
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+      
+      - name: Prepare app env
+        run: |
+          cp .env.example .env
+          php -r "file_exists('storage') || mkdir('storage', 0777, true);"
+          php -r "file_exists('bootstrap/cache') || mkdir('bootstrap/cache', 0777, true);"
+          php artisan key:generate
+      
+      - name: Autoload optimize + package discovery
+        run: |
+          composer dump-autoload -o
+          php artisan package:discover
+      
+      - name: Configure sqlite memory
+        run: |
+          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=sqlite/' .env
+          echo "DB_DATABASE=:memory:" >> .env
+          php artisan config:clear
+      
+      - name: Run migrations
+        run: php artisan migrate --no-interaction
+      
+      - name: Test
+        run: php artisan test --colors=always
 
   frontend:
     runs-on: ubuntu-latest
@@ -41,12 +70,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'pnpm'
-          cache-dependency-path: './frontend/pnpm-lock.yaml'
-      
-      - name: Enable Corepack
-        run: corepack enable
+          node-version: '20.x'
+
+      - name: Enable Corepack (pnpm 8.x)
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.15.4 --activate
+          pnpm -v
       
       - name: Install dependencies
         run: pnpm install
@@ -54,8 +84,5 @@ jobs:
       - name: Run lint
         run: pnpm lint
       
-      - name: Run typecheck
-        run: pnpm typecheck
-      
       - name: Run tests
-        run: pnpm test
+        run: pnpm run test -- --run

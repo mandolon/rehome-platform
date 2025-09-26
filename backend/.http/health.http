@@ -1,0 +1,31 @@
+### CSRF Cookie - Acquire session and XSRF token
+GET http://127.0.0.1:9000/sanctum/csrf-cookie
+
+### Health Check
+GET http://127.0.0.1:9000/api/health
+
+### Me Endpoint - Requires session cookie in client (get from browser dev tools after login)
+GET http://127.0.0.1:9000/api/me
+Cookie: laravel_session=YOUR_SESSION_COOKIE_HERE; XSRF-TOKEN=YOUR_XSRF_TOKEN_HERE
+
+### Login - Use after getting CSRF cookie
+POST http://127.0.0.1:9000/login
+Content-Type: application/json
+X-Requested-With: XMLHttpRequest
+X-XSRF-TOKEN: YOUR_DECODED_XSRF_TOKEN_HERE
+Origin: http://localhost:3000
+Referer: http://localhost:3000
+
+{
+  "email": "admin@rehome.com",
+  "password": "password"
+}
+
+### Logout - Requires session cookie
+POST http://127.0.0.1:9000/logout
+Content-Type: application/json
+X-Requested-With: XMLHttpRequest
+Cookie: laravel_session=YOUR_SESSION_COOKIE_HERE; XSRF-TOKEN=YOUR_XSRF_TOKEN_HERE
+X-XSRF-TOKEN: YOUR_DECODED_XSRF_TOKEN_HERE
+
+{}

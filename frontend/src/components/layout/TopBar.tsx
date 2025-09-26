@@ -38,6 +38,18 @@ export function TopBar() {
           {user.role.replace('_', ' ')}
         </Badge>
         
+        {user.team_type && user.role === 'team' && (
+          <Badge variant="outline" className="capitalize">
+            {user.team_type}
+          </Badge>
+        )}
+        
+        {user.role === 'admin' && (
+          <Button variant="ghost" size="sm" asChild>
+            <a href="/admin">Admin Panel</a>
+          </Button>
+        )}
+        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">

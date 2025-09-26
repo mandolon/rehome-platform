@@ -1,30 +1,22 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { AuthProvider } from "@/lib/auth/AuthProvider";
-import { MockProvider } from "@/components/MockProvider";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Rehome Platform",
-  description: "Modern project management platform",
+  title: 'ReHome Platform',
+  description: 'Interior design and home renovation platform',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <MockProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </MockProvider>
-      </body>
+    <html lang="en" className={inter.className}>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

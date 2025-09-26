@@ -7,8 +7,13 @@ on:
 jobs:
   label:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    permissi**Review checklist:**
+- [ ] Authentication/authorization changes are intentional
+- [ ] CORS configuration maintains security
+- [ ] No credentials or secrets exposed
+- [ ] Session/cookie settings are appropriate
+
+**Reviewers:** Please pay special attention to the security implications of these changes.\`    contents: read
       pull-requests: write
 
     steps:
@@ -37,8 +42,7 @@ jobs:
               'frontend/src/lib/api.ts',
               'frontend/src/lib/auth.ts',
               'frontend/src/lib/axios-interceptors.ts',
-              '.github/workflows/',
-              '.coderabbit/'
+              '.github/workflows/'
             ];
 
             const hasSecurityChanges = changedFiles.some(file => 
@@ -103,8 +107,7 @@ jobs:
 
             // CI/CD changes
             const hasCIChanges = changedFiles.some(file => 
-              file.includes('.github/workflows/') ||
-              file.includes('.coderabbit/')
+              file.includes('.github/workflows/')
             );
             if (hasCIChanges) {
               labels.push('ci-cd');
@@ -152,7 +155,6 @@ ${changedFiles.filter(file =>
 - [ ] CORS configuration maintains security
 - [ ] No credentials or secrets exposed
 - [ ] Session/cookie settings are appropriate
-- [ ] CodeRabbit security flags addressed
 
 **Reviewers:** Please pay special attention to the security implications of these changes.`
               });
