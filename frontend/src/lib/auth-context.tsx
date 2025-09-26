@@ -35,7 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const checkAuth = async () => {
     try {
       const response = await getMe()
-      setUser(response.user)
+      setUser(response)
     } catch (error) {
       // User not authenticated, clear any stale state
       setUser(null)
@@ -71,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshUser = async () => {
     try {
       const response = await getMe()
-      setUser(response.user)
+      setUser(response)
     } catch (error) {
       // If refresh fails, user is no longer authenticated
       setUser(null)
