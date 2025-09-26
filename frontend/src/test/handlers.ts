@@ -1,5 +1,5 @@
-import { http } from "msw";
+import { http, HttpResponse } from "msw";
+
 export const handlers = [
-  // example:
-  // http.get("/api/health", () => new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } })),
+  http.get("/api/health", () => HttpResponse.json({ ok: true })),
 ];

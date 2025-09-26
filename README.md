@@ -1,5 +1,6 @@
 # Rehome Platform
   [![Backend CI](https://github.com/<ORG_OR_USER>/rehome-platform/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/<ORG_OR_USER>/rehome-platform/actions/workflows/backend-ci.yml)
+  [![Frontend CI](https://github.com/mandolon/rehome-platform/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/mandolon/rehome-platform/actions/workflows/frontend-ci.yml)
   
   Multi-role collaborative platform for architecture and construction teams. Features project management, task tracking, team collaboration, and client portals with real-time updates.
 
