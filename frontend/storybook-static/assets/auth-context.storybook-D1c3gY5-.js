@@ -1,1 +1,0 @@
-import{r as e}from"./index-B2-qRKKC.js";const r=e.createContext(void 0);function s(){const t=e.useContext(r),o=(t==null?void 0:t.user)||null;return{user:o,hasRole:n=>(o==null?void 0:o.role)===n||(o==null?void 0:o.role)==="ADMIN",isAdmin:()=>(o==null?void 0:o.role)==="ADMIN"}}export{r as A,s as u};

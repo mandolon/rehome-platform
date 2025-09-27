@@ -60,6 +60,10 @@ jobs:
         working-directory: frontend
         run: pnpm install --frozen-lockfile
 
+      - name: Create artifacts directory
+        working-directory: frontend
+        run: mkdir -p .gatef_artifacts
+
       - name: Type check
         working-directory: frontend
         run: pnpm run -s typecheck
@@ -68,9 +72,13 @@ jobs:
         working-directory: frontend
         run: pnpm run -s test -- --run
 
-      - name: Run vitest with dot reporter
-        working-directory: frontend
-        run: pnpm vitest --run --reporter=dot
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts
+          path: frontend/.gatef_artifacts/*
+          retention-days: 7
 
   storybook:
     runs-on: ubuntu-latest
@@ -101,4 +109,12 @@ jobs:
 
       - name: Build Storybook
         working-directory: frontend
-        run: pnpm run -s storybook:ci || echo "Storybook build failed but continuing"
+        run: pnpm run -s storybook:ci
+
+      - name: Upload Storybook artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-artifacts
+          path: frontend/.gatef_artifacts/*
+          retention-days: 7

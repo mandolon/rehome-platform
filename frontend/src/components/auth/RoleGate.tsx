@@ -14,7 +14,7 @@ export function RoleGate({ area, children, fallback = null }: RoleGateProps) {
 
   // For admin area, only show to admin users
   if (area === 'admin') {
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || user.role !== 'admin') {
       return <>{fallback}</>
     }
     return <>{children}</>
