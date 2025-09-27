@@ -1,91 +1,98 @@
 name: Frontend CI
 
 on:
-  push:
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-ci.yml'
   pull_request:
     paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-ci.yml'
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
+
+concurrency:
+  group: frontend-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
+    name: build
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend
+        shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Enable corepack & pin pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@8.15.4 --activate
-          pnpm -v
-
-      - name: Setup pnpm cache
+      - name: Setup Node 20 + cache
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
 
+      - name: Enable corepack & pin pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.15.4 --activate
+          pnpm --version
+
       - name: Install
         run: pnpm install --frozen-lockfile
+
+      - name: Prep logs dir
+        run: mkdir -p .gatef_artifacts
 
       - name: Typecheck
-        run: pnpm run -s typecheck
+        run: pnpm -s typecheck 2>&1 | tee .gatef_artifacts/typecheck.log
 
       - name: Lint
-        run: pnpm run -s lint
+        run: pnpm -s lint 2>&1 | tee .gatef_artifacts/lint.log
 
       - name: Build
-        run: pnpm run -s build
+        run: pnpm -s build 2>&1 | tee .gatef_artifacts/build.log
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build-logs
+          path: frontend/.gatef_artifacts/*
 
   storybook:
+    name: storybook
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: frontend
+        shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Enable corepack & pin pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@8.15.4 --activate
-          pnpm -v
-
-      - name: Setup pnpm cache
+      - name: Setup Node 20 + cache
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
 
+      - name: Enable corepack & pin pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.15.4 --activate
+          pnpm --version
+
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Storybook build
-        run: pnpm run -s storybook:ci
+      - name: Prep logs dir
+        run: mkdir -p .gatef_artifacts
 
-      - name: Upload Storybook logs
+      - name: Storybook build
+        run: pnpm -s storybook:ci 2>&1 | tee .gatef_artifacts/storybook_build.log
+
+      - name: Upload storybook logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: storybook-build-logs
-          path: |
-            frontend/storybook-static
-            frontend/.storybook
+          path: frontend/.gatef_artifacts/*
