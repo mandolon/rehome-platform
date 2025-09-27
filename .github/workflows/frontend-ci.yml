@@ -23,14 +23,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
-          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Enable corepack & pin pnpm
         run: |
           corepack enable
           corepack prepare pnpm@8.15.4 --activate
           pnpm -v
+
+      - name: Setup pnpm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install
         run: pnpm install --frozen-lockfile
@@ -56,14 +61,19 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
-          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Enable corepack & pin pnpm
         run: |
           corepack enable
           corepack prepare pnpm@8.15.4 --activate
           pnpm -v
+
+      - name: Setup pnpm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install
         run: pnpm install --frozen-lockfile
