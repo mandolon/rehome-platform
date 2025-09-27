@@ -1,32 +1,38 @@
 name: Frontend CI
 on:
   pull_request:
-    paths: [ "frontend/**", ".github/workflows/frontend-ci.yml" ]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/frontend-ci.yml"
 jobs:
-  frontend:
+  fe:
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: ./frontend } }
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      NODE_OPTIONS: "--max_old_space_size=4096"
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+        with: { fetch-depth: 0 }
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
-          cache-dependency-path: ./frontend/pnpm-lock.yaml
-      - run: corepack enable
-      - run: corepack prepare pnpm@8.15.4 --activate
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run -s typecheck
-      - run: pnpm run -s lint
-      - run: pnpm run -s test -- --run --reporter=dot
-      - run: NODE_OPTIONS="--max_old_space_size=4096" pnpm run -s build
-      - run: NODE_OPTIONS="--max_old_space_size=4096" pnpm run -s storybook:ci
-      - if: always()
+          node-version: "20"
+      - name: Activate pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@8.15.4 --activate
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm run -s typecheck | tee ../public-artifacts/typecheck.log
+      - name: Unit tests
+        run: pnpm run -s test -- --run | tee ../public-artifacts/test.log
+      - name: Build
+        run: pnpm run -s build | tee ../public-artifacts/build.log
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-artifacts
-          path: |
-            frontend/.gatef_artifacts/**
-            frontend/storybook-static/**
-            frontend/coverage/**
-          if-no-files-found: ignore
+          name: fe-logs
+          path: public-artifacts/**

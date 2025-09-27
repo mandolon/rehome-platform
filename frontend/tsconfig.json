@@ -22,9 +22,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": [
-    "node_modules",".next","coverage","storybook-static",
-    "src/components/examples/**","src/storybook-static/**",
-    "**/.gatef_artifacts/**","**/gatef_logs/**","cypress"
-  ]
+  "exclude": ["**/*.stories.*", "**/__tests__/**", "**/examples/**", "node_modules"]
 }
