@@ -141,4 +141,17 @@ vite.config.ts.timestamp-*
 # IDE and OS files
 .idea/
 .vscode/
-.DS_Store
+.DS_Store# build/artifacts
+frontend/.next/
+frontend/coverage/
+frontend/storybook-static/
+frontend/.gatef_artifacts/
+public-artifacts/
+.gatef_artifacts/
+
+# dependencies
+frontend/node_modules/
+backend/vendor/
+
+# caches
+.phpunit.result.cache
