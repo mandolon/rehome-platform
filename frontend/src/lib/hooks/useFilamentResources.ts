@@ -1,7 +1,7 @@
 'use client'
 
-import { useMemo } from 'react'
-import { useRole } from '@/lib/auth-context'
+import { useMemo, useCallback } from 'react'
+import { useAuth } from '@/lib/auth/AuthProvider'
 
 /**
  * Filament resource types that may have visibility restrictions
@@ -96,7 +96,16 @@ const FILAMENT_RESOURCE_CONFIG: Record<FilamentResourceType, {
  * Primarily focused on admin-only resources but extensible for role-based access
  */
 export function useFilamentResources() {
-  const { user, hasRole, isAdmin } = useRole()
+  const { user } = useAuth()
+  
+  const hasRole = useCallback((role: string) => {
+    if (!user) return false
+    return user.role === role
+  }, [user])
+  
+  const isAdmin = useCallback(() => {
+    return user?.role === 'admin'
+  }, [user])
 
   /**
    * Check if user can access a specific Filament resource

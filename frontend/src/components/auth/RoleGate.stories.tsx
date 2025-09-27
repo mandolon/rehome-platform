@@ -41,10 +41,10 @@ export const AccessDenied: Story = {
   args: {
     area: 'admin',
     fallback: <div style={{ padding: 16 }}>No Access</div>,
-    children: <div style={{ padding: 16 }}>This should not render for team_member.</div>,
+    children: <div style={{ padding: 16 }}>This should not render for team users.</div>,
   },
   parameters: {
-    globals: { role: 'team_member' },
+    globals: { role: 'team' },
   },
 }
 
@@ -56,6 +56,6 @@ export const GuestFallback: Story = {
     children: <div style={{ padding: 16 }}>Private content</div>,
   },
   parameters: {
-    globals: { role: 'guest' },
+    globals: { role: 'client' },
   },
 }
