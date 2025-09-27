@@ -13,9 +13,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - uses: actions/checkout@v4
 
@@ -34,9 +31,11 @@ jobs:
           restore-keys: ${{ runner.os }}-composer-
 
       - name: Install dependencies
+        working-directory: backend
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Prepare environment
+        working-directory: backend
         run: |
           cp .env.example .env || true
           mkdir -p bootstrap/cache
@@ -46,12 +45,14 @@ jobs:
           php artisan key:generate
 
       - name: Clear caches
+        working-directory: backend
         run: |
           php artisan config:clear
           php artisan route:clear
           php artisan view:clear
 
       - name: Run unit tests
+        working-directory: backend
         env:
           APP_ENV: testing
           CACHE_DRIVER: file
