@@ -1,15 +1,23 @@
 import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { makeUser } from '@/test/utils/userFactory';
 import { useRouter } from 'next/navigation'
 import { Protected } from '@/components/auth/Protected'
 import { useAuth } from '@/lib/auth/AuthProvider'
+import type { User } from '@/lib/types'
 
 // Mock dependencies
 vi.mock('next/navigation')
-vi.mock('@/lib/auth/AuthProvider')
+vi.mock("@/lib/auth/AuthProvider")
 
+const user: User = {
+  id: 1,
+  name: 'Test User',
+  email: 'test@example.com',
+  role: 'admin',
+  created_at: '2023-01-01',
+  updated_at: '2023-01-01',
+}
 const mockPush = vi.fn()
 const mockUseRouter = vi.mocked(useRouter)
 const mockUseAuth = vi.mocked(useAuth)
@@ -62,15 +70,16 @@ describe('Protected Component', () => {
   })
 
   it('should render children when authenticated', () => {
+    const user: User = {
+      id: 1,
+      name: 'Test User',
+      email: 'test@example.com',
+      role: 'admin',
+      created_at: '2023-01-01',
+      updated_at: '2023-01-01',
+    }
     mockUseAuth.mockReturnValue({
-      user: makeUser({
-        id: 1,
-        name: 'Test User',
-        email: 'test@example.com',
-        role: 'admin', // Changed to lowercase
-        created_at: '2023-01-01',
-        updated_at: '2023-01-01',
-      }),
+      user,
       loading: false,
       login: vi.fn(),
       register: vi.fn(),

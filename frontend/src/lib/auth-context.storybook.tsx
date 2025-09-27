@@ -17,3 +17,11 @@ export interface SBAuthContextType {
 }
 
 export const AuthContext = createContext<SBAuthContextType | undefined>(undefined)
+
+// Minimal role helper for Storybook that mirrors the app's useRole API
+export function useRole() {
+  const user: SBUser | null = null
+  const hasRole = (_: string | string[]) => false
+  const isAdmin = () => false
+  return { user, hasRole, isAdmin }
+}
