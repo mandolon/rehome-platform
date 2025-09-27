@@ -12,19 +12,19 @@ refactor(rbac): remove legacy RBAC + flag, enforce area+workspace guards
 ## Changes Made
 
 ### Configuration
-- ✅ Removed `SIMPLE_RBAC` config from `backend/config/app.php`
-- ✅ Removed `SIMPLE_RBAC` from `.env` files
+- ✅ Removed `SIMPLE_RBAC` config from `backend/config/rbac.php`
+- ✅ Removed `SIMPLE_RBAC` from all documentation and scripts
 
 ### Middleware
 - ✅ `EnsureRole` middleware now always enforces role checks
 - ✅ `ScopeWorkspace` middleware now always enforces workspace membership
-- ✅ Removed all `config('app.simple_rbac')` conditional logic
+- ✅ Removed all `config('rbac.enabled')` conditional logic
 
 ### Routes
 - ✅ Removed legacy `/api/requests` route groups
 - ✅ Kept only new route structure:
-  - `/api/admin/*` → `auth` + `role:admin`
-  - `/api/app/*` → `auth:sanctum` + `role:manager,contributor,viewer` + `scope.workspace`
+  - `/admin/*` → `auth` + `role:ADMIN`
+  - `/api/app/*` → `auth:sanctum` + `role:TEAM,CONSULTANT,CLIENT` + `scope.workspace`
 
 ### Policies
 - ✅ `BaseScopedPolicy` now always enforces workspace membership
@@ -33,40 +33,28 @@ refactor(rbac): remove legacy RBAC + flag, enforce area+workspace guards
 
 ### Tests
 - ✅ Kept `AreaAccessTest` and `WorkspaceScopeTest` (simplified RBAC tests)
-- ✅ Removed legacy test files:
-  - `RequestsFeatureTest.php`
-  - `Requests/AuthorizationTest.php`
-  - `Requests/FilteringTest.php`
-  - `Requests/ParticipantsTest.php`
-  - `Requests/PerformanceTest.php`
-- ✅ Removed `SimpleRbacTest.php` (flag testing)
+- ✅ Removed legacy test files and SIMPLE_RBAC conditional tests
+- ✅ Added comprehensive hardening tests
 
 ## Test Results
 ```
-Tests:    43 passed (50 assertions)
-Duration: 4.16s
+Tests:    37 passed (56 assertions)
+Duration: 22.45s
 ```
 
 ### Key Test Coverage
-- ✅ Admin users can access `/api/admin/*` routes
+- ✅ Admin users can access `/admin/*` routes
 - ✅ Non-admin users get 403 for admin routes
 - ✅ Workspace members can perform CRUD operations
 - ✅ Non-members get 403 for workspace resources
 - ✅ Missing workspace ID returns 400
-- ✅ Non-existent workspace returns 404
+- ✅ Non-existent workspace returns 403
 - ✅ Wrong workspace returns 403
 
 ## Migration/Config
 - ✅ Removes SIMPLE_RBAC env/config completely
-- ✅ No database migrations needed
+- ✅ Added migration to drop legacy request role columns
 - ✅ Middleware aliases remain registered in `bootstrap/app.php`
-
-## Rollback Plan
-If issues arise, can revert this commit to restore:
-- Legacy `/api/requests` routes
-- SIMPLE_RBAC feature flag
-- Conditional middleware behavior
-- Legacy test files
 
 ## Breaking Changes
 - ❌ `/api/requests` routes no longer exist

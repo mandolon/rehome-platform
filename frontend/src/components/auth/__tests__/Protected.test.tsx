@@ -63,14 +63,14 @@ describe('Protected Component', () => {
 
   it('should render children when authenticated', () => {
     mockUseAuth.mockReturnValue({
-      user: makeUser({
+      user: {
         id: 1,
         name: 'Test User',
         email: 'test@example.com',
-        role: 'admin', // Changed to lowercase
+        role: 'admin' as const,
         created_at: '2023-01-01',
         updated_at: '2023-01-01',
-      }),
+      },
       loading: false,
       login: vi.fn(),
       register: vi.fn(),

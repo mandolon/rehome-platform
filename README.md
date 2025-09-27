@@ -71,10 +71,6 @@ Prompts respond only when message starts with one of:
 ### Authorization Rule
 `(role allows area) AND (user is member of workspace/project)`
 
-### Feature Flag
-- `SIMPLE_RBAC=false` (default) - Legacy RBAC active
-- `SIMPLE_RBAC=true` - Simple RBAC active
-
 ### Health Checks
 - **Admin**: `GET /admin/health` (ADMIN role required)
 - **SPA**: `GET /api/app/health` (TEAM/CONSULTANT/CLIENT + workspace membership)
@@ -89,50 +85,37 @@ Prompts respond only when message starts with one of:
 
 ### 10-Step Implementation Guide
 
-1. **Feature Flag Setup**
-   Add `SIMPLE_RBAC=false` to `.env`. Default OFF for safety.
-
-2. **Configuration**
+1. **Configuration**
    Create `config/rbac.php` with roles: `ADMIN`, `TEAM`, `CONSULTANT`, `CLIENT`.
 
-3. **Middleware Creation**
+2. **Middleware Creation**
 
    * `EnsureRole` → checks if user role allows admin vs SPA.
    * `ScopeWorkspace` → ensures user is in workspace.
 
-4. **Policy Base**
+3. **Policy Base**
    Add `BaseScopedPolicy` abstract class for workspace-scoped policies.
 
-5. **Route Wiring**
+4. **Route Protection**
+   Apply middleware to admin and SPA routes.
 
-   * `/admin/**` → `ADMIN` role only.
-   * `/api/app/**` → `TEAM|CONSULTANT|CLIENT` + workspace check.
+5. **Test Coverage**
+   Create tests for role enforcement and workspace scoping.
 
-6. **Middleware Registration**
-   Register aliases in `bootstrap/app.php` for `EnsureRole` and `ScopeWorkspace`.
+6. **Database Migration**
+   Add role column to users table.
 
-7. **User Model Updates**
-   Add `workspaces()` relationship and `isRole($role)` helper.
+7. **Factory Updates**
+   Update user factories to include role field.
 
-8. **Test Suite**
-   Add `RbacWiringTest.php` to prove:
+8. **Seeder Updates**
+   Create users with appropriate roles.
 
-   * Admin can access `/admin`.
-   * Team/Consultant/Client blocked from `/admin`.
-   * Workspace scoping enforced in `/api/app`.
+9. **Documentation**
+   Update API documentation to reflect new RBAC model.
 
-9. **Validation Commands**
-
-   ```bash
-   php artisan test --filter=RbacWiringTest
-   ```
-
-10. **Rollout Process**
-
-    * Keep flag OFF by default.
-    * Enable in staging → validate tests.
-    * Enable in production once validated.
-    * Cleanup old RBAC in follow-up PR.
+10. **Deployment**
+    Deploy with proper role assignments.
 
 ---
 

@@ -1,0 +1,44 @@
+name: Backend CI
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+jobs:
+  be:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, json, pdo_sqlite, bcmath, tokenizer, xml, ctype, dom, fileinfo, openssl
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache/files
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+      - name: Install deps
+        run: composer install --no-interaction --prefer-dist
+      - name: Prep env
+        run: |
+          cp .env.example .env.testing 2>/dev/null || echo "APP_NAME=Laravel" > .env.testing
+          echo "APP_KEY=" >> .env.testing
+          echo "DB_CONNECTION=sqlite" >> .env.testing
+          echo "DB_DATABASE=database/database.sqlite" >> .env.testing
+          echo "CACHE_DRIVER=array" >> .env.testing
+          echo "QUEUE_CONNECTION=sync" >> .env.testing
+          echo "SESSION_DRIVER=array" >> .env.testing
+          mkdir -p database
+          touch database/database.sqlite
+          php artisan key:generate --env=testing || true
+      - name: Migrate
+        run: php artisan migrate --env=testing --force
+      - name: Tests
+        run: php artisan test --env=testing
