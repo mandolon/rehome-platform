@@ -5,11 +5,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useFilamentResources, FilamentResourceUtils } from '../useFilamentResources'
 
-vi.mock('../../auth-context', () => ({
-  useRole: vi.fn(),
+vi.mock('../../auth/AuthProvider', () => ({
+  useAuth: vi.fn(),
 }))
-import { useRole } from '../../auth-context'
-const mockUseRole = vi.mocked(useRole)
+import { useAuth } from '../../auth/AuthProvider'
+const mockUseAuth = vi.mocked(useAuth)
 
 describe('useFilamentResources', () => {
   beforeEach(() => {
@@ -18,10 +18,13 @@ describe('useFilamentResources', () => {
 
   describe('when user is admin', () => {
     beforeEach(() => {
-      mockUseRole.mockReturnValue({
-        user: { id: 1, name: 'Admin User', email: 'admin@test.com', role: 'admin' },
-        hasRole: vi.fn((role) => (Array.isArray(role) ? role.includes('admin') : role === 'admin')),
-        isAdmin: vi.fn(() => true)
+      mockUseAuth.mockReturnValue({
+        user: { id: 1, name: 'Admin User', email: 'admin@test.com', role: 'admin', created_at: '2023-01-01', updated_at: '2023-01-01' },
+        loading: false,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        refreshMe: vi.fn()
       } as any)
     })
 
@@ -35,10 +38,13 @@ describe('useFilamentResources', () => {
 
   describe('when user is not admin', () => {
     beforeEach(() => {
-      mockUseRole.mockReturnValue({
-        user: { id: 2, name: 'Regular User', email: 'user@test.com', role: 'team' },
-        hasRole: vi.fn((role) => (Array.isArray(role) ? role.includes('team') : role === 'team')),
-        isAdmin: vi.fn(() => false)
+      mockUseAuth.mockReturnValue({
+        user: { id: 2, name: 'Regular User', email: 'user@test.com', role: 'team', created_at: '2023-01-01', updated_at: '2023-01-01' },
+        loading: false,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        refreshMe: vi.fn()
       } as any)
     })
 
@@ -61,10 +67,13 @@ describe('useFilamentResources', () => {
 
   describe('when user is not logged in', () => {
     beforeEach(() => {
-      mockUseRole.mockReturnValue({
+      mockUseAuth.mockReturnValue({
         user: null,
-        hasRole: vi.fn(() => false),
-        isAdmin: vi.fn(() => false)
+        loading: false,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        refreshMe: vi.fn()
       } as any)
     })
 
@@ -80,10 +89,13 @@ describe('useFilamentResources', () => {
 
   describe('getAccessibleNavigation', () => {
     beforeEach(() => {
-      mockUseRole.mockReturnValue({
-        user: { id: 1, name: 'Admin User', email: 'admin@test.com', role: 'admin' },
-        hasRole: vi.fn((role) => (Array.isArray(role) ? role.includes('admin') : role === 'admin')),
-        isAdmin: vi.fn(() => true)
+      mockUseAuth.mockReturnValue({
+        user: { id: 1, name: 'Admin User', email: 'admin@test.com', role: 'admin', created_at: '2023-01-01', updated_at: '2023-01-01' },
+        loading: false,
+        login: vi.fn(),
+        register: vi.fn(),
+        logout: vi.fn(),
+        refreshMe: vi.fn()
       } as any)
     })
 

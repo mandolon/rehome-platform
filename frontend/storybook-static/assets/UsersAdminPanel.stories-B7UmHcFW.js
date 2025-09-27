@@ -1,0 +1,29 @@
+import{r as c,R as e}from"./index-B2-qRKKC.js";import{F as R,A as H}from"./FilamentResourceGuard-CKyJlG57.js";import"./_commonjsHelpers-Cpj98o6Y.js";import"./AuthProvider-cMGYVJDZ.js";function p(){var b,x,f;const[r,u]=c.useState([{id:1,name:"Alice Admin",email:"alice@example.com",role:"admin"},{id:2,name:"Tina Team",email:"tina@example.com",role:"team"},{id:3,name:"Carlos Consultant",email:"carlos@example.com",role:"consultant"},{id:4,name:"Clara Client",email:"clara@example.com",role:"client"}]),[E,g]=c.useState(1),[n,s]=c.useState({}),l=c.useMemo(()=>r.find(a=>a.id===E)||null,[r,E]),w=()=>{var m,v,A;const a=Math.max(0,...r.map(N=>N.id))+1,t={id:a,name:((m=n.name)==null?void 0:m.toString())||"New User",email:((v=n.email)==null?void 0:v.toString())||`user${a}@example.com`,role:((A=n.role)==null?void 0:A.toString())||"team"};u(N=>[...N,t]),g(a),s({})},F=()=>{l&&(u(a=>a.map(t=>t.id===l.id?{...l,...n}:t)),s({}))},P=a=>{u(t=>t.filter(m=>m.id!==a)),E===a&&g(null)};return e.createElement(R,{resourceType:"users"},e.createElement("div",{className:"grid grid-cols-12 gap-4 p-4"},e.createElement("section",{className:"col-span-5 border rounded p-3"},e.createElement("h2",{className:"font-semibold mb-2"},"Users"),e.createElement("ul",{className:"divide-y"},r.map(a=>e.createElement("li",{key:a.id,className:"py-2 flex items-center justify-between"},e.createElement("button",{className:"text-left",onClick:()=>g(a.id)},e.createElement("div",{className:"font-medium"},a.name),e.createElement("div",{className:"text-xs text-gray-500"},a.email," • ",a.role)),e.createElement("button",{className:"text-red-600 text-sm",onClick:()=>P(a.id),"aria-label":`Delete ${a.name}`},"Delete"))))),e.createElement("section",{className:"col-span-7 border rounded p-3"},e.createElement("h2",{className:"font-semibold mb-2"},"Detail"),l?e.createElement("div",{className:"space-y-2","aria-live":"polite"},e.createElement("div",null,e.createElement("span",{className:"text-sm text-gray-500"},"ID:")," ",l.id),e.createElement("div",null,e.createElement("span",{className:"text-sm text-gray-500"},"Name:")," ",l.name),e.createElement("div",null,e.createElement("span",{className:"text-sm text-gray-500"},"Email:")," ",l.email),e.createElement("div",null,e.createElement("span",{className:"text-sm text-gray-500"},"Role:")," ",l.role)):e.createElement("p",{className:"text-sm text-gray-500"},"No user selected"),e.createElement("div",{className:"mt-4 border-t pt-3"},e.createElement("h3",{className:"font-medium mb-2"},"Edit/Create"),e.createElement("form",{className:"grid grid-cols-2 gap-2",onSubmit:a=>a.preventDefault()},e.createElement("label",{className:"flex flex-col gap-1"},e.createElement("span",{className:"text-sm"},"Name"),e.createElement("input",{className:"border rounded p-2",value:((b=n.name)==null?void 0:b.toString())||"",onChange:a=>s(t=>({...t,name:a.target.value}))})),e.createElement("label",{className:"flex flex-col gap-1"},e.createElement("span",{className:"text-sm"},"Email"),e.createElement("input",{className:"border rounded p-2",value:((x=n.email)==null?void 0:x.toString())||"",onChange:a=>s(t=>({...t,email:a.target.value}))})),e.createElement("label",{className:"flex flex-col gap-1 col-span-2"},e.createElement("span",{className:"text-sm"},"Role"),e.createElement("select",{className:"border rounded p-2",value:((f=n.role)==null?void 0:f.toString())||"",onChange:a=>s(t=>({...t,role:a.target.value}))},e.createElement("option",{value:""},"Select role"),e.createElement("option",{value:"admin"},"Admin"),e.createElement("option",{value:"team"},"Team"),e.createElement("option",{value:"consultant"},"Consultant"),e.createElement("option",{value:"client"},"Client"))),e.createElement("div",{className:"col-span-2 flex gap-2 mt-2"},e.createElement("button",{className:"bg-blue-600 text-white px-3 py-2 rounded",onClick:w,"aria-label":"Create user"},"Create"),e.createElement("button",{className:"bg-amber-600 text-white px-3 py-2 rounded",onClick:F,disabled:!l,"aria-disabled":!l,"aria-label":"Update user"},"Update")))))))}p.__docgenInfo={description:"",methods:[],displayName:"UsersAdminPanel"};const W={title:"Admin/Users/UsersAdminPanel",component:p,parameters:{layout:"fullscreen",a11y:{disable:!1}}},o={name:"List + Detail (Admin)",args:{},parameters:{globals:{role:"admin"}}},i={name:"Hidden for Non-Admins",render:()=>e.createElement(H,{fallback:e.createElement("div",{style:{padding:16}},"No access")},e.createElement(p,null)),parameters:{globals:{role:"team_member"}}},d={name:"Access Denied (Guest)",parameters:{globals:{role:"guest"}},render:()=>e.createElement(p,null)};var y,S,C;o.parameters={...o.parameters,docs:{...(y=o.parameters)==null?void 0:y.docs,source:{originalSource:`{
+  name: 'List + Detail (Admin)',
+  args: {},
+  parameters: {
+    globals: {
+      role: 'admin'
+    }
+  }
+}`,...(C=(S=o.parameters)==null?void 0:S.docs)==null?void 0:C.source}}};var h,D,U;i.parameters={...i.parameters,docs:{...(h=i.parameters)==null?void 0:h.docs,source:{originalSource:`{
+  name: 'Hidden for Non-Admins',
+  render: () => <AdminSectionGuard fallback={<div style={{
+    padding: 16
+  }}>No access</div>}>\r
+      <UsersAdminPanel />\r
+    </AdminSectionGuard>,
+  parameters: {
+    globals: {
+      role: 'team_member'
+    }
+  }
+}`,...(U=(D=i.parameters)==null?void 0:D.docs)==null?void 0:U.source}}};var G,k,_;d.parameters={...d.parameters,docs:{...(G=d.parameters)==null?void 0:G.docs,source:{originalSource:`{
+  name: 'Access Denied (Guest)',
+  parameters: {
+    globals: {
+      role: 'guest'
+    }
+  },
+  render: () => <UsersAdminPanel />
+}`,...(_=(k=d.parameters)==null?void 0:k.docs)==null?void 0:_.source}}};const $=["Default","HiddenForNonAdmins","AccessDeniedWhenGuest"];export{d as AccessDeniedWhenGuest,o as Default,i as HiddenForNonAdmins,$ as __namedExportsOrder,W as default};
