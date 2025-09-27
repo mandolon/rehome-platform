@@ -17,15 +17,14 @@ const preview: Preview = {
     role: {
       name: 'Role',
       description: 'Mocked user role',
-      defaultValue: 'ADMIN',
+      defaultValue: 'admin',
       toolbar: {
         icon: 'user',
         items: [
-          { value: 'ADMIN', title: 'Admin' },
-          { value: 'TEAM', title: 'Team' },
-          { value: 'CONSULTANT', title: 'Consultant' },
-          { value: 'CLIENT', title: 'Client' },
-          { value: 'GUEST', title: 'Guest (unauthenticated)' }
+          { value: 'admin', title: 'Admin' },
+          { value: 'project_manager', title: 'Project Manager' },
+          { value: 'team_member', title: 'Team Member' },
+          { value: 'guest', title: 'Guest (unauthenticated)' }
         ],
       },
     },
@@ -33,7 +32,7 @@ const preview: Preview = {
   decorators: [
     (Story, context) => {
       const role = context.globals.role as string
-      const isGuest = role === 'GUEST'
+      const isGuest = role === 'guest'
       const user = isGuest
         ? null
         : { id: 1, name: 'Story User', email: 'story@demo.local', role }
@@ -46,10 +45,10 @@ const preview: Preview = {
         refreshUser: async () => {},
       }
 
-      return React.createElement(
-        AuthContext.Provider as any,
-        { value: value as any },
-        React.createElement(Story as any)
+      return (
+        <AuthContext.Provider value={value as any}>
+          <Story />
+        </AuthContext.Provider>
       )
     }
   ]
