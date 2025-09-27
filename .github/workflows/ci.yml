@@ -59,35 +59,40 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-          cache-dependency-path: './frontend/pnpm-lock.yaml'
-      
-      - name: Enable Corepack
-        run: corepack enable
-      
-      - name: Activate pnpm 8.15.4
-        run: corepack prepare pnpm@8.15.4 --activate
-      
-      - name: Install dependencies
-        run: pnpm install
-      
-      - name: Run lint
-        run: pnpm lint
-      
-      - name: Run typecheck
-        run: pnpm typecheck
-      
-      - name: Run tests
-        run: pnpm test
+          cache-dependency-path: ./frontend/pnpm-lock.yaml
+
+      - run: corepack enable
+      - run: corepack prepare pnpm@8.15.4 --activate
+      - run: pnpm install --frozen-lockfile
+        working-directory: ./frontend
+
+      - run: pnpm run -s typecheck
+        working-directory: ./frontend
+      - run: pnpm run -s lint
+        working-directory: ./frontend
+      - run: pnpm run -s test -- --run
+        working-directory: ./frontend
+      - run: pnpm run -s build
+        working-directory: ./frontend
+      - run: pnpm run -s storybook:ci
+        working-directory: ./frontend
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-artifacts
+          path: |
+            frontend/.gatef_artifacts/*
+            frontend/storybook-static/*
+            frontend/coverage/*
+          if-no-files-found: ignore
