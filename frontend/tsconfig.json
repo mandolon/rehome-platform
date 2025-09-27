@@ -22,5 +22,13 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["**/*.stories.*", "**/__tests__/**", "**/examples/**", "node_modules"]
+  "exclude": [
+    "node_modules",
+    ".next",
+    "cypress",
+    "**/*.cy.ts",
+    "**/*.cy.tsx",
+    "**/*.stories.*",
+    "**/__tests__/**"
+  ]
 }

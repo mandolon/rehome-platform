@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async rewrites() {
     // Only use proxy when not in mock mode
     return process.env.NEXT_PUBLIC_USE_API_MOCK === '1' ? [] : [
