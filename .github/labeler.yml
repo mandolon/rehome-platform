@@ -1,0 +1,11 @@
+frontend:
+  - 'frontend/**'
+
+backend:
+  - 'backend/**'
+
+ci:
+  - '.github/**'
+
+docs:
+  - '**/*.md'
