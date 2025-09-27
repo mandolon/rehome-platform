@@ -70,12 +70,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'pnpm'
           cache-dependency-path: './frontend/pnpm-lock.yaml'
       
       - name: Enable Corepack
         run: corepack enable
+      
+      - name: Activate pnpm 8.15.4
+        run: corepack prepare pnpm@8.15.4 --activate
       
       - name: Install dependencies
         run: pnpm install
